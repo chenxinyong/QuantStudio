@@ -11,6 +11,7 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="CsvHelper" Version="28.0.1" />
 		<PackageReference Include="Volo.Abp.Security" Version="5.3.3" />
 		<PackageReference Include="Volo.Abp.Autofac" Version="5.3.3" />
 	</ItemGroup>
@@ -21,50 +22,6 @@
 		<PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
 		<PackageReference Include="Serilog.Sinks.Async" Version="1.5.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Update="runtimes\win-x64\native\ftdc2c_ctp.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x64\native\ftdc2c_ctp.exp">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x64\native\ftdc2c_ctp.lib">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x64\native\ftdc2c_ctp.pdb">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x64\native\thostmduserapi_se.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x64\native\thosttraderapi_se.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x64\native\WinDataCollect.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x86\native\ftdc2c_ctp.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x86\native\ftdc2c_ctp.exp">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x86\native\ftdc2c_ctp.lib">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x86\native\ftdc2c_ctp.pdb">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x86\native\thostmduserapi_se.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x86\native\thosttraderapi_se.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="runtimes\win-x86\native\WinDataCollect.dll">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
 	</ItemGroup>
 	
 </Project>

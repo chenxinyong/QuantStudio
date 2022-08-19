@@ -3,7 +3,7 @@ using Volo.Abp.Autofac;
 using Volo.Abp.Modularity;
 using Volo.Abp.Security;
 
-namespace QuantConnect.Studio.CTP;
+namespace QuantStudio.CTP;
 
 [DependsOn(
     typeof(AbpAutofacModule)
@@ -13,6 +13,5 @@ public class CTPModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
-        // context.Services.AddSingleton<MainWindow>();
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QuantConnect.Studio.CTP
+namespace QuantStudio.CTP
 {
     /// <summary>
     /// CTP配置
@@ -19,7 +19,22 @@ namespace QuantConnect.Studio.CTP
 
         }
 
-        public CTPSettings(string brokerID, string tradeFrontAddr, string mdFrontAddr, string investorID, string password, string appId = "",string authCode = "")
+        public InvestorSetting Investor { get; set; }
+
+        public List<string> SubInstruments { get; set; }
+
+        #endregion
+
+    }
+
+    [Serializable]
+    public class InvestorSetting
+    {
+        public InvestorSetting()
+        {
+
+        }
+        public InvestorSetting(string brokerID, string tradeFrontAddr, string mdFrontAddr, string investorID, string password, string appId = "", string authCode = "")
         {
             BrokerID = brokerID;
             TradeFrontAddr = tradeFrontAddr;
@@ -29,8 +44,6 @@ namespace QuantConnect.Studio.CTP
             AppID = appId;
             AuthCode = authCode;
         }
-
-        #endregion
 
         /// <summary>
         /// 期货公司经纪商代码
@@ -67,4 +80,5 @@ namespace QuantConnect.Studio.CTP
         /// </summary>
         public string AuthCode { get; set; }
     }
+
 }

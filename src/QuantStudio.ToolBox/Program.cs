@@ -30,7 +30,7 @@ public class Program
             await Host.CreateDefaultBuilder(args)
                 .ConfigureServices(services =>
                 {
-                    services.AddHostedService<ConsoleAppHostedService>();
+                    services.AddHostedService<ToolBoxHostedService>();
                 })
                 .UseSerilog()
                 .RunConsoleAsync();

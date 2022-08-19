@@ -32,4 +32,8 @@
       <ProjectReference Include="..\QuantStudio.Shared\QuantStudio.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="App_Data\" />
+    </ItemGroup>
+
 </Project>
