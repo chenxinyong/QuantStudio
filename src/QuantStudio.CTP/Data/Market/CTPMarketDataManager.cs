@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Collections.Concurrent;
 using System.Text;
@@ -12,13 +13,13 @@ using Microsoft.Extensions.Hosting;
 using Volo.Abp.Security.Encryption;
 using Microsoft.Extensions.Configuration;
 using QuantStudio.Data.Market;
-using QuantStudio;
 using static QuantStudio.CTP.CTPConsts;
-using QuantStudio.CTP.Data.Market;
 using CsvHelper;
 using System.Globalization;
+using QLNet;
+using Path = System.IO.Path;
 
-namespace QuantStudio.CTP
+namespace QuantStudio.CTP.Data.Market
 {
     /// <summary>
     /// CTP行情数据管理
@@ -39,12 +40,16 @@ namespace QuantStudio.CTP
         // MarketData队列
         private Dictionary<string, Queue<CTPMarketData>> _dictQueueMarketDatas = new Dictionary<string, Queue<CTPMarketData>>();
 
+        // ThostFtdcDepthMarketDataField 队列
+        private  ConcurrentQueue<ThostFtdcDepthMarketDataField> _ftdcDepthMarketDataFieldsQueue  = new ConcurrentQueue<ThostFtdcDepthMarketDataField>();
+
         private CTPMarketData ConverTo(ThostFtdcDepthMarketDataField MarketData)
         {
             CTPMarketData data = new CTPMarketData(
                 MarketData.TradingDay,
                 MarketData.InstrumentID,
                 MarketData.ExchangeID,
+                MarketData.ExchangeInstID,
                 MarketData.LastPrice.SafeDecimalCast().Normalize(),
                 MarketData.PreSettlementPrice.SafeDecimalCast().Normalize(),
                 MarketData.PreClosePrice.SafeDecimalCast().Normalize(),
@@ -125,19 +130,10 @@ namespace QuantStudio.CTP
             await DoCloseTradingEvent();
         }
 
-        private async void _mdReceiver_OnDepthMarketDataEvent(object? sender, DepthMarketDataArgs e)
+        private void _mdReceiver_OnDepthMarketDataEvent(object? sender, DepthMarketDataArgs e)
         {
             // 
-            try
-            {
-                // 处理深度行情数据
-                CTPMarketData cTPMarketData = ConverTo(e.MarketData);
-                await DoMarketDataEvent(cTPMarketData);
-            }
-            catch(Exception ex)
-            {
-                Logger.LogError(ex.Message);
-            }
+            _ftdcDepthMarketDataFieldsQueue.Enqueue(e.MarketData);
         }
 
         private async void _mdReceiver_OnHeartBeatEvent(object? sender, HeartBeatEventArgs e)
@@ -145,7 +141,7 @@ namespace QuantStudio.CTP
             int threeMinutes = 1000 * 60 * 3;
             while (true)
             {
-                if(!_mdReceiver.IsConnected)
+                if (!_mdReceiver.IsConnected)
                 {
                     await _mdReceiver.Connect();
                 }
@@ -162,11 +158,12 @@ namespace QuantStudio.CTP
 
         private async Task DoCloseTradingEvent()
         {
+            TimeOnly closeTrading = new TimeOnly(3, 0);
             TimeOnly timeOnly = TimeOnly.FromDateTime(DateTime.Now);
-            if(timeOnly.Second == 0)
+            if (timeOnly.Minute / 15 == 0)
             {
                 // 每分钟存储一次数据
-                foreach(var kvp in _dictQueueMarketDatas)
+                foreach (var kvp in _dictQueueMarketDatas)
                 {
                     string categoryCode = "";
                     if (kvp.Key.Substring(1, 1).ToCharArray()[0].IsBetween('/', ':'))
@@ -178,12 +175,12 @@ namespace QuantStudio.CTP
                         categoryCode = kvp.Key.Substring(0, 2);
                     }
 
-                    if(CTPConsts.ExchangeCategories.ContainsKey(categoryCode))
+                    if (ExchangeCategories.ContainsKey(categoryCode))
                     {
-                        string marketCode = CTPConsts.ExchangeCategories[categoryCode].MarketCode;
-                        categoryCode = CTPConsts.ExchangeCategories[categoryCode].Symbol;
-                        string symbolPath = Path.Combine(_hostEnvironment.ContentRootPath,CTPConsts.MarketDataFolder.App_Data, marketCode, CTPConsts.MarketDataFolder.Ticks);
-                        if(!Directory.Exists(symbolPath))
+                        string marketCode = ExchangeCategories[categoryCode].MarketCode;
+                        categoryCode = ExchangeCategories[categoryCode].Symbol;
+                        string symbolPath = Path.Combine(_hostEnvironment.ContentRootPath, MarketDataFolder.App_Data, marketCode, MarketDataFolder.Ticks);
+                        if (!Directory.Exists(symbolPath))
                         {
                             Directory.CreateDirectory(symbolPath);
                         }
@@ -202,7 +199,7 @@ namespace QuantStudio.CTP
 
         private void InitExchangePath(string appDataPath)
         {
-            var categoriesExchange = CTPConsts.ExchangeCategories.Values.GroupBy(p => p.MarketCode).ToList();
+            var categoriesExchange = ExchangeCategories.Values.GroupBy(p => p.MarketCode).ToList();
             foreach (var exchange in categoriesExchange)
             {
                 // Itcks
@@ -242,7 +239,6 @@ namespace QuantStudio.CTP
 
         private void DoCTPSettings(CTPSettings settings)
         {
-            InitDataPath();
         }
 
         #endregion
@@ -253,100 +249,9 @@ namespace QuantStudio.CTP
 
         private async void Initialize()
         {
-            if (CTPOnlineTradingTimeFrames.IsPOnlineTradingTime(DateTime.Now))
+            if (CTPOnlineTradingTimeFrames.IsCTPOnlineTradingTime(DateTime.Now))
             {
                 await _mdReceiver.Connect();
-            }
-            else
-            {
-                // 加载历史数据
-                var marketGroups = CTPConsts.ExchangeCategories.Values.GroupBy(p => p.MarketCode);
-                foreach(var market in marketGroups)
-                {
-                    string marketPath = Path.Combine(_hostEnvironment.ContentRootPath, CTPConsts.MarketDataFolder.App_Data, market.Key);
-                    // ticks
-                    foreach( var item in market)
-                    {
-                        string categoryPath = Path.Combine(marketPath, CTPConsts.MarketDataFolder.Ticks, item.Symbol);
-                        if(Directory.Exists(categoryPath))
-                        {
-                            // 读取全部文件
-                            DirectoryInfo directoryInfo = new DirectoryInfo(categoryPath);
-                            FileInfo[] files =  directoryInfo.GetFiles();
-                            files.ToList().ForEach(file => 
-                            {
-                                // csv文件读取
-                                using (var reader = new StreamReader(file.FullName))
-                                {
-                                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                                    {
-                                        var records = csv.GetRecords<CTPMarketData>();
-                                        if(records.Any())
-                                        {
-                                            // 加入队列
-
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                    }
-
-                    // minutes
-                    foreach (var item in market)
-                    {
-                        string categoryPath = Path.Combine(marketPath, CTPConsts.MarketDataFolder.Minutes, item.Symbol);
-                        if (Directory.Exists(categoryPath))
-                        {
-                            // 读取全部文件
-                            DirectoryInfo directoryInfo = new DirectoryInfo(categoryPath);
-                            FileInfo[] files = directoryInfo.GetFiles();
-                            files.ToList().ForEach(file =>
-                            {
-                                // csv文件读取
-                                using (var reader = new StreamReader(file.FullName))
-                                {
-                                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                                    {
-                                        var records = csv.GetRecords<CTPMarketData>();
-                                        if (records.Any())
-                                        {
-                                            // 加入队列
-
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                    }
-
-                    foreach (var item in market)
-                    {
-                        string categoryPath = Path.Combine(marketPath, CTPConsts.MarketDataFolder.Dialy, item.Symbol);
-                        if (Directory.Exists(categoryPath))
-                        {
-                            // 读取全部文件
-                            DirectoryInfo directoryInfo = new DirectoryInfo(categoryPath);
-                            FileInfo[] files = directoryInfo.GetFiles();
-                            files.ToList().ForEach(file =>
-                            {
-                                // csv文件读取
-                                using (var reader = new StreamReader(file.FullName))
-                                {
-                                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                                    {
-                                        var records = csv.GetRecords<CTPMarketData>();
-                                        if (records.Any())
-                                        {
-                                            // 加入队列
-
-                                        }
-                                    }
-                                }
-                            });
-                        }
-                    }
-                }
             }
         }
 
@@ -372,7 +277,7 @@ namespace QuantStudio.CTP
             _mdReceiver.OnDepthMarketDataEvent += _mdReceiver_OnDepthMarketDataEvent;
             _mdReceiver.OnCloseTradingEvent += _mdReceiver_OnCloseTradingEvent;
 
-            _mdReceiver.Initialize(_ctpSettings,DoCTPSettings);
+            _mdReceiver.Initialize(_ctpSettings, DoCTPSettings);
 
             Initialize();
         }

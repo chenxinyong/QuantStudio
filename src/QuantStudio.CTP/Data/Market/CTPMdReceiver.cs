@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using CTP;
 using Microsoft.Extensions.Hosting;
 
-namespace QuantStudio.CTP
+namespace QuantStudio.CTP.Data.Market
 {
     /// <summary>
     /// CTP行情数据接收器
@@ -26,7 +26,7 @@ namespace QuantStudio.CTP
         private FtdcMdAdapter DataApi = null;
         private int iRequestID = 0;
         private bool _isConnected = false;
-        private List<string> _subscribeInstrumentIDs = new List<string>() { "ru2301","fu2301","TA301","rb2301","P2301","MA301","SA01","CF301","i2301","j2301","FG301","ag2212","bu2301","sc2210","sp2301","cu2209","zn2209","au2212","ni2210","ss2210","SF210","lu2211","zn2209","CJ301","AP301","lh2301"};
+        private List<string> _subscribeInstrumentIDs = new List<string>() { "ru2301", "fu2301", "TA301", "rb2301", "P2301", "MA301", "SA01", "CF301", "i2301", "j2301", "FG301", "ag2212", "bu2301", "sc2210", "sp2301", "cu2209", "zn2209", "au2212", "ni2210", "ss2210", "SF210", "lu2211", "zn2209", "CJ301", "AP301", "lh2301" };
 
         #endregion
 
@@ -62,7 +62,7 @@ namespace QuantStudio.CTP
         private async Task _defaultHandlerHeartBeatEvent(object? sender, HeartBeatEventArgs e)
         {
             int threeMinutes = 1000 * 60 * 3;
-            while(true)
+            while (true)
             {
                 if (!_isConnected)
                 {
@@ -96,7 +96,7 @@ namespace QuantStudio.CTP
                         int iResult = DataApi.ReqUserLogin(req, ++iRequestID);
                     }
                     break;
-                    case EnumOnFrontType.OnFrontDisconnected:
+                case EnumOnFrontType.OnFrontDisconnected:
                     {
 
                     }
@@ -109,7 +109,7 @@ namespace QuantStudio.CTP
             Console.WriteLine("DataApi_OnRtnEvent " + e.EventType.ToString());
 
             var fld = Conv.P2S<ThostFtdcDepthMarketDataField>(e.Param);
-            if(fld != null)
+            if (fld != null)
             {
                 Console.WriteLine("{0}.{1:D3} {2} {3}", fld.UpdateTime, fld.UpdateMillisec, fld.InstrumentID, fld.LastPrice);
 
@@ -119,7 +119,7 @@ namespace QuantStudio.CTP
 
         private async void DataApi_OnRspEvent(object sender, OnRspEventArgs e)
         {
-            Console.WriteLine("DataApi_OnRspEvent " + e.EventType.ToString());
+            Logger.LogInformation("DataApi_OnRspEvent " + e.EventType.ToString());
             bool err = IsError(e.RspInfo, e.EventType.ToString());
 
             switch (e.EventType)
@@ -148,7 +148,7 @@ namespace QuantStudio.CTP
                 case EnumOnRspType.OnRspSubMarketData:
                     {
                         var f = Conv.P2S<ThostFtdcSpecificInstrumentField>(e.Param);
-                        if(f != null)
+                        if (f != null)
                         {
                             Console.WriteLine("订阅成功:" + f.InstrumentID);
                         }
@@ -157,12 +157,13 @@ namespace QuantStudio.CTP
                 case EnumOnRspType.OnRspUnSubMarketData:
                     {
                         var f = Conv.P2S<ThostFtdcSpecificInstrumentField>(e.Param);
-                        if(f != null)
+                        if (f != null)
                         {
                             Console.WriteLine("退订成功:" + f.InstrumentID);
                         }
                     }
                     break;
+
             }
         }
 
@@ -221,7 +222,7 @@ namespace QuantStudio.CTP
             {
                 DataApi.Dispose();
                 DataApi = null;
-                Console.WriteLine("Disconnected.");
+                Logger.LogInformation("Disconnected.");
             }
 
             await Task.CompletedTask;
@@ -229,7 +230,7 @@ namespace QuantStudio.CTP
 
         #region public
 
-        public bool IsConnected { get { return DataApi != null && _isConnected ; } }
+        public bool IsConnected { get { return DataApi != null && _isConnected; } }
 
         public async Task Connect()
         {

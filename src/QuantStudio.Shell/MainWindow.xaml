@@ -6,7 +6,26 @@
         xmlns:local="clr-namespace:QuantStudio.Shell"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <Label Name="HelloLabel" FontSize="90" Margin="58,129,-58,-129"/>
+    <Grid Margin="10">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Label>Names</Label>
+        <ListBox Grid.Row="1" x:Name="lstNames" />
+
+        <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,0,0,0">
+            <TextBox x:Name="txtName" KeyDown="txtName_KeyDown"></TextBox>
+            <Button x:Name="btnAdd" Margin="0,5,0,0" Click="ButtonAddName_Click">AddName</Button>
+            <Button x:Name="btnAddOk" Margin="0,5,0,0" Click="LoadCsvFiles_Click">LoadCsvFiles
+            </Button>
+        </StackPanel>
     </Grid>
 </Window>

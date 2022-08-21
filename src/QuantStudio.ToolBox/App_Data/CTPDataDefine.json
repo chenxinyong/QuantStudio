@@ -1,0 +1,229 @@
+{
+  "CsvFileColumns": {
+    "DepthMarketData": {
+      "HasHeaderRecord": false,
+      "Columns": [
+        {
+          "Index": 0,
+          "Name": "TradingDay",
+          "Type": "String"
+        },
+        {
+          "Index": 1,
+          "Name": "InstrumentID",
+          "Type": "String"
+        },
+        {
+          "Index": 2,
+          "Name": "ExchangeID",
+          "Type": "String"
+        },
+        {
+          "Index": 3,
+          "Name": "ExchangeInstID",
+          "Type": "String"
+        },
+        {
+          "Index": 4,
+          "Name": "LastPrice",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 5,
+          "Name": "PreSettlementPrice",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 6,
+          "Name": "PreClosePrice",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 7,
+          "Name": "PreOpenInterest",
+          "Type": "Int"
+        },
+        {
+          "Index": 8,
+          "Name": "OpenPrice",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 9,
+          "Name": "HighestPrice",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 10,
+          "Name": "LowestPrice",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 11,
+          "Name": "Volume ",
+          "Type": "Int"
+        },
+        {
+          "Index": 11,
+          "Name": "Turnover",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 12,
+          "Name": "OpenInterest",
+          "Type": "Int"
+        },
+        {
+          "Index": 13,
+          "Name": "ClosePrice",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 14,
+          "Name": "SettlementPrice",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 15,
+          "Name": "UpperLimitPrice",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 16,
+          "Name": "LowerLimitPrice",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 17,
+          "Name": "PreDelta",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 18,
+          "Name": "CurrDelta",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 19,
+          "Name": "UpdateTime",
+          "Type": "string"
+        },
+        {
+          "Index": 20,
+          "Name": "UpdateMillisec",
+          "Type": "int"
+        },
+        {
+          "Index": 21,
+          "Name": "BidPrice1",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 22,
+          "Name": "BidVolume1",
+          "Type": "Int"
+        },
+        {
+          "Index": 23,
+          "Name": "AskPrice1",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 24,
+          "Name": "AskVolume1",
+          "Type": "Int"
+        },
+        {
+          "Index": 25,
+          "Name": "BidPrice2",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 26,
+          "Name": "BidVolume2",
+          "Type": "Int"
+        },
+        {
+          "Index": 27,
+          "Name": "AskPrice2",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 28,
+          "Name": "AskVolume2",
+          "Type": "Int"
+        },
+        {
+          "Index": 29,
+          "Name": "BidPrice3",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 30,
+          "Name": "BidVolume3",
+          "Type": "Int"
+        },
+        {
+          "Index": 31,
+          "Name": "AskPrice3",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 32,
+          "Name": "AskVolume3",
+          "Type": "Int"
+        },
+        {
+          "Index": 33,
+          "Name": "BidPrice4",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 34,
+          "Name": "BidVolume4",
+          "Type": "Int"
+        },
+        {
+          "Index": 35,
+          "Name": "AskPrice4",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 36,
+          "Name": "AskVolume4",
+          "Type": "Int"
+        },
+        {
+          "Index": 37,
+          "Name": "BidPrice5",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 38,
+          "Name": "BidVolume5",
+          "Type": "Int"
+        },
+        {
+          "Index": 39,
+          "Name": "AskPrice5",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 40,
+          "Name": "AskVolume5",
+          "Type": "Int"
+        },
+        {
+          "Index": 41,
+          "Name": "AveragePrice",
+          "Type": "Decimal"
+        },
+        {
+          "Index": 42,
+          "Name": "ActionDay",
+          "Type": "string"
+        }
+      ]
+    }
+  }
+}

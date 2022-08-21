@@ -13,17 +13,25 @@ namespace QuantStudio.CTP.Data.Market
     [StructLayout(LayoutKind.Sequential)]
     public class CTPMarketData
     {
-        public string InstrumentID { get; internal set; }
-
         //
         // 摘要:
         //     交易日
         public string TradingDay { get; internal set; }
 
+        /// <summary>
+        /// 证券代码
+        /// </summary>
+        public string InstrumentID { get; internal set; }
+
         //
         // 摘要:
         //     交易所代码
         public string ExchangeID { get; internal set; }
+
+        /// <summary>
+        /// 交易所证券代码
+        /// </summary>
+        public string ExchangeInstID { get; internal set; }
 
         //
         // 摘要:
@@ -225,7 +233,7 @@ namespace QuantStudio.CTP.Data.Market
         //     业务日期
         public string ActionDay { get; internal set; }
 
-        public CTPMarketData(string tradingDay, string instrumentID, string exchangeID, decimal lastPrice, decimal preSettlementPrice, decimal preClosePrice, decimal preOpenInterest,
+        public CTPMarketData(string tradingDay, string instrumentID, string exchangeID, string exchangeInstID, decimal lastPrice, decimal preSettlementPrice, decimal preClosePrice, decimal preOpenInterest,
             decimal openPrice, decimal highestPrice, decimal lowestPrice, int volume, decimal turnover, decimal openInterest,
             decimal closePrice, decimal settlementPrice, decimal upperLimitPrice, decimal lowerLimitPrice, decimal preDelta, decimal currDelta, DateTime updateTime, int updateMillisec,
             decimal bidPrice1, int bidVolume1, decimal askPrice1, int askVolume1, decimal bidPrice2, int bidVolume2, decimal askPrice2, int askVolume2, decimal bidPrice3, int bidVolume3, decimal askPrice3, int askVolume3,
@@ -235,6 +243,7 @@ namespace QuantStudio.CTP.Data.Market
             TradingDay = tradingDay;
             InstrumentID = instrumentID;
             ExchangeID = exchangeID;
+            ExchangeInstID = exchangeInstID;
             LastPrice = lastPrice;
             PreSettlementPrice = preSettlementPrice;
             PreClosePrice = preClosePrice;

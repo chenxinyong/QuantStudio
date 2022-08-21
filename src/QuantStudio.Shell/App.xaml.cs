@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using Volo.Abp;
+using static System.Net.Mime.MediaTypeNames;
+using Application = System.Windows.Application;
 
 namespace QuantStudio.Shell;
 
@@ -12,34 +15,53 @@ namespace QuantStudio.Shell;
 /// </summary>
 public partial class App : Application
 {
-    private IAbpApplicationWithInternalServiceProvider _abpApplication;
+    private readonly IHost _host;
+    private readonly IAbpApplicationWithExternalServiceProvider _abpApplication;
 
-    protected async override void OnStartup(StartupEventArgs e)
+    private IHost CreateHostBuilder()
+    {
+        return Host
+            .CreateDefaultBuilder(null)
+            .UseAutofac()
+            .UseSerilog()
+            .ConfigureServices((hostContext, services) =>
+            {
+                services.AddApplication<ShellModule>();
+            }).Build();
+    }
+
+    private void Initialize(IServiceProvider serviceProvider)
+    {
+        _abpApplication.Initialize(serviceProvider);
+    }
+
+    public App()
     {
         Log.Logger = new LoggerConfiguration()
 #if DEBUG
             .MinimumLevel.Debug()
 #else
-            .MinimumLevel.Information()
+                .MinimumLevel.Information()
 #endif
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .Enrich.FromLogContext()
             .WriteTo.Async(c => c.File("Logs/logs.txt"))
             .CreateLogger();
 
+        _host = CreateHostBuilder();
+        _abpApplication = _host.Services.GetService<IAbpApplicationWithExternalServiceProvider>();
+    }
+
+    protected async override void OnStartup(StartupEventArgs e)
+    {
         try
         {
             Log.Information("Starting WPF host.");
+            await _host.StartAsync();
 
-            _abpApplication =  await AbpApplicationFactory.CreateAsync<ShellModule>(options =>
-            {
-                options.UseAutofac();
-                options.Services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
-            });
+            Initialize(_host.Services);
 
-            await _abpApplication.InitializeAsync();
-
-            _abpApplication.Services.GetRequiredService<MainWindow>()?.Show();
+            _host.Services.GetService<MainWindow>()?.Show();
 
         }
         catch (Exception ex)
@@ -50,7 +72,9 @@ public partial class App : Application
 
     protected async override void OnExit(ExitEventArgs e)
     {
-        await _abpApplication.ShutdownAsync();
+        _abpApplication.Shutdown();
+        await _host.StopAsync();
+        _host.Dispose();
         Log.CloseAndFlush();
     }
 }

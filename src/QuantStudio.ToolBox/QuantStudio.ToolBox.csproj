@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <Import Project="..\..\common.props" />
 
@@ -33,7 +33,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="App_Data\" />
+      <None Update="App_Data\CTPDataDefine.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

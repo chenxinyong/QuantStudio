@@ -7,13 +7,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuantStudio.Shell", "src\Qu
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{25D4C66E-2173-478D-ABBE-0E9FC0E93B57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuantStudio.Web", "src\QuantStudio.Web\QuantStudio.Web.csproj", "{C27F6B19-42D7-431B-A0DF-319F1921A080}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuantStudio.Web", "src\QuantStudio.Web\QuantStudio.Web.csproj", "{C27F6B19-42D7-431B-A0DF-319F1921A080}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuantStudio.Shared", "src\QuantStudio.Shared\QuantStudio.Shared.csproj", "{6D6CE875-3914-4C9E-871A-F62D757B9D3A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuantStudio.Shared", "src\QuantStudio.Shared\QuantStudio.Shared.csproj", "{6D6CE875-3914-4C9E-871A-F62D757B9D3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuantStudio.CTP", "src\QuantStudio.CTP\QuantStudio.CTP.csproj", "{A787A4CD-5150-4277-997C-95E9CE45E1AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuantStudio.CTP", "src\QuantStudio.CTP\QuantStudio.CTP.csproj", "{A787A4CD-5150-4277-997C-95E9CE45E1AA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuantStudio.ConsoleApp", "src\QuantStudio.ConsoleApp\QuantStudio.ConsoleApp.csproj", "{3FB97996-A492-42E8-A8DA-3F79ACD55F0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuantStudio.ToolBox", "src\QuantStudio.ToolBox\QuantStudio.ToolBox.csproj", "{F3669057-C11E-4638-9564-E90CA201C51A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +37,10 @@ Global
 		{A787A4CD-5150-4277-997C-95E9CE45E1AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A787A4CD-5150-4277-997C-95E9CE45E1AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A787A4CD-5150-4277-997C-95E9CE45E1AA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3FB97996-A492-42E8-A8DA-3F79ACD55F0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3FB97996-A492-42E8-A8DA-3F79ACD55F0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3FB97996-A492-42E8-A8DA-3F79ACD55F0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3FB97996-A492-42E8-A8DA-3F79ACD55F0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3669057-C11E-4638-9564-E90CA201C51A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3669057-C11E-4638-9564-E90CA201C51A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3669057-C11E-4638-9564-E90CA201C51A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3669057-C11E-4638-9564-E90CA201C51A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,7 +50,7 @@ Global
 		{C27F6B19-42D7-431B-A0DF-319F1921A080} = {25D4C66E-2173-478D-ABBE-0E9FC0E93B57}
 		{6D6CE875-3914-4C9E-871A-F62D757B9D3A} = {25D4C66E-2173-478D-ABBE-0E9FC0E93B57}
 		{A787A4CD-5150-4277-997C-95E9CE45E1AA} = {25D4C66E-2173-478D-ABBE-0E9FC0E93B57}
-		{3FB97996-A492-42E8-A8DA-3F79ACD55F0D} = {25D4C66E-2173-478D-ABBE-0E9FC0E93B57}
+		{F3669057-C11E-4638-9564-E90CA201C51A} = {25D4C66E-2173-478D-ABBE-0E9FC0E93B57}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7F5623D4-F08C-4BB4-A68F-2665FC9DBA67}

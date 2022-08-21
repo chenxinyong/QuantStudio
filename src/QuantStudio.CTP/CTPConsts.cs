@@ -117,12 +117,14 @@ namespace QuantStudio.CTP
                 // 周四
                 { DayOfWeek.Thursday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0)),new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30))} },
                 // 周五
-                { DayOfWeek.Friday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0)),new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30))} },
+                { DayOfWeek.Friday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0))
+                    ,new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30)) 
+                    ,new TradingTimeFrame(new TimeOnly(21,0),new TimeOnly(23,59,59,999)) } },
                 // 周六
                 { DayOfWeek.Saturday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0))} }
             };
 
-            public static bool IsPOnlineTradingTime(DateTime dateTime)
+            public static bool IsCTPOnlineTradingTime(DateTime dateTime)
             {
                 if(Default.ContainsKey(dateTime.DayOfWeek))
                 {
