@@ -4,7 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using QuantStudio.CTP.Data.Market;
+using QuantStudio.CTP.Data;
+using QuantStudio.CTP.Trader;
 using Serilog;
 using Volo.Abp;
 
@@ -33,7 +34,7 @@ public class ToolBoxHostedService : IHostedService
 
         await _abpApplication.InitializeAsync();
 
-        var helloWorldService = _abpApplication.ServiceProvider.GetRequiredService<CTPMarketDataManager>();
+        var helloWorldService = _abpApplication.ServiceProvider.GetRequiredService<DataManager>();
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
@@ -43,7 +44,12 @@ public class ToolBoxHostedService : IHostedService
 
     public async Task ConnectAsync(CancellationToken cancellationToken)
     {
-        var marketDataManager = _abpApplication.ServiceProvider.GetRequiredService<CTPMarketDataManager>();
+        // 交易数据
+        var tradeManager = _abpApplication.ServiceProvider.GetRequiredService<TradeManager>();
+        tradeManager.Initialize();
+
+        var marketDataManager = _abpApplication.ServiceProvider.GetRequiredService<DataManager>();
         // 订阅行情数据
+        marketDataManager.Initialize();
     }
 }

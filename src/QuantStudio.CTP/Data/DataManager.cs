@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Collections.Concurrent;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.DependencyInjection;
@@ -18,13 +17,14 @@ using CsvHelper;
 using System.Globalization;
 using QLNet;
 using Path = System.IO.Path;
+using QuantStudio.CTP.Data.Market;
 
-namespace QuantStudio.CTP.Data.Market
+namespace QuantStudio.CTP.Data
 {
     /// <summary>
     /// CTP行情数据管理
     /// </summary>
-    public class CTPMarketDataManager : ISingletonDependency
+    public class DataManager : ISingletonDependency
     {
         #region private 
 
@@ -35,17 +35,17 @@ namespace QuantStudio.CTP.Data.Market
         private IStringEncryptionService _stringEncryptionService;
 
         // Tick / Bars / 当前的行情数据
-        private Dictionary<string, CTPMarketData> _dictCurrentCTPTicks = new Dictionary<string, CTPMarketData>();
+        private Dictionary<string, MarketData> _dictCurrentCTPTicks = new Dictionary<string, MarketData>();
 
         // MarketData队列
-        private Dictionary<string, Queue<CTPMarketData>> _dictQueueMarketDatas = new Dictionary<string, Queue<CTPMarketData>>();
+        private Dictionary<string, Queue<MarketData>> _dictQueueMarketDatas = new Dictionary<string, Queue<MarketData>>();
 
         // ThostFtdcDepthMarketDataField 队列
-        private  ConcurrentQueue<ThostFtdcDepthMarketDataField> _ftdcDepthMarketDataFieldsQueue  = new ConcurrentQueue<ThostFtdcDepthMarketDataField>();
+        private ConcurrentQueue<ThostFtdcDepthMarketDataField> _ftdcDepthMarketDataFieldsQueue = new ConcurrentQueue<ThostFtdcDepthMarketDataField>();
 
-        private CTPMarketData ConverTo(ThostFtdcDepthMarketDataField MarketData)
+        private MarketData ConverTo(ThostFtdcDepthMarketDataField MarketData)
         {
-            CTPMarketData data = new CTPMarketData(
+            MarketData data = new MarketData(
                 MarketData.TradingDay,
                 MarketData.InstrumentID,
                 MarketData.ExchangeID,
@@ -105,12 +105,12 @@ namespace QuantStudio.CTP.Data.Market
             return data;
         }
 
-        private async Task DoMarketDataEvent(CTPMarketData marketData)
+        private async Task DoMarketDataEvent(MarketData marketData)
         {
             // 放入对应的队列中
             if (!_dictQueueMarketDatas.ContainsKey(marketData.InstrumentID))
             {
-                _dictQueueMarketDatas.Add(marketData.InstrumentID, new Queue<CTPMarketData>());
+                _dictQueueMarketDatas.Add(marketData.InstrumentID, new Queue<MarketData>());
             }
 
             _dictQueueMarketDatas[marketData.InstrumentID].Enqueue(marketData);
@@ -243,11 +243,11 @@ namespace QuantStudio.CTP.Data.Market
 
         #endregion
 
-        public ILogger<CTPMarketDataManager> Logger { get; set; }
+        public ILogger<DataManager> Logger { get; set; }
 
         #region ctor / Initialize
 
-        private async void Initialize()
+        public async void Initialize()
         {
             if (CTPOnlineTradingTimeFrames.IsCTPOnlineTradingTime(DateTime.Now))
             {
@@ -259,15 +259,17 @@ namespace QuantStudio.CTP.Data.Market
         /// 
         /// </summary>
         /// <param name="mdReceiver"></param>
-        public CTPMarketDataManager(CTPMdReceiver mdReceiver, IConfiguration configuration, IStringEncryptionService stringEncryptionService, IHostEnvironment hostEnvironment)
+        public DataManager(CTPMdReceiver mdReceiver, IConfiguration configuration, IStringEncryptionService stringEncryptionService, IHostEnvironment hostEnvironment)
         {
-            Logger = NullLogger<CTPMarketDataManager>.Instance;
+            Logger = NullLogger<DataManager>.Instance;
+
             _mdReceiver = mdReceiver;
             _configuration = configuration;
             _hostEnvironment = hostEnvironment;
             _stringEncryptionService = stringEncryptionService;
 
             _ctpSettings = _configuration.GetSection("CTPSettings").Get<CTPSettings>();
+
             // 解密敏感信息
             _ctpSettings.Investor.UserID = _stringEncryptionService.Decrypt(_ctpSettings.Investor.UserID);
             _ctpSettings.Investor.Password = _stringEncryptionService.Decrypt(_ctpSettings.Investor.Password);

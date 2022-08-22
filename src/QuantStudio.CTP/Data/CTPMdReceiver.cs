@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using CTP;
 using Microsoft.Extensions.Hosting;
 
-namespace QuantStudio.CTP.Data.Market
+namespace QuantStudio.CTP.Data
 {
     /// <summary>
     /// CTP行情数据接收器
@@ -26,7 +26,7 @@ namespace QuantStudio.CTP.Data.Market
         private FtdcMdAdapter DataApi = null;
         private int iRequestID = 0;
         private bool _isConnected = false;
-        private List<string> _subscribeInstrumentIDs = new List<string>() { "ru2301", "fu2301", "TA301", "rb2301", "P2301", "MA301", "SA01", "CF301", "i2301", "j2301", "FG301", "ag2212", "bu2301", "sc2210", "sp2301", "cu2209", "zn2209", "au2212", "ni2210", "ss2210", "SF210", "lu2211", "zn2209", "CJ301", "AP301", "lh2301" };
+        private List<string> _subscribeInstrumentIDs = new List<string>() {  };
 
         #endregion
 
@@ -61,15 +61,14 @@ namespace QuantStudio.CTP.Data.Market
 
         private async Task _defaultHandlerHeartBeatEvent(object? sender, HeartBeatEventArgs e)
         {
-            int threeMinutes = 1000 * 60 * 3;
             while (true)
             {
+                await Task.Delay(TimeSpan.FromMinutes(3));
+
                 if (!_isConnected)
                 {
                     await DoConnect();
                 }
-
-                await Task.Delay(threeMinutes);
             }
         }
 
@@ -128,7 +127,7 @@ namespace QuantStudio.CTP.Data.Market
                     if (!err)
                     {
                         _isConnected = true;
-                        Console.WriteLine("登录成功");
+                        Logger.LogInformation("登录成功");
 
                         // 心跳事件
                         HeartBeatEventArgs eventArgs = new HeartBeatEventArgs();
@@ -150,7 +149,7 @@ namespace QuantStudio.CTP.Data.Market
                         var f = Conv.P2S<ThostFtdcSpecificInstrumentField>(e.Param);
                         if (f != null)
                         {
-                            Console.WriteLine("订阅成功:" + f.InstrumentID);
+                            Logger.LogInformation("订阅成功:" + f.InstrumentID);
                         }
                     }
                     break;
@@ -159,7 +158,7 @@ namespace QuantStudio.CTP.Data.Market
                         var f = Conv.P2S<ThostFtdcSpecificInstrumentField>(e.Param);
                         if (f != null)
                         {
-                            Console.WriteLine("退订成功:" + f.InstrumentID);
+                            Logger.LogInformation("退订成功:" + f.InstrumentID);
                         }
                     }
                     break;

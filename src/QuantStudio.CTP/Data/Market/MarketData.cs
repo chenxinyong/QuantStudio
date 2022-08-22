@@ -11,7 +11,7 @@ namespace QuantStudio.CTP.Data.Market
     // 摘要:
     //     深度行情
     [StructLayout(LayoutKind.Sequential)]
-    public class CTPMarketData
+    public class MarketData
     {
         //
         // 摘要:
@@ -233,7 +233,7 @@ namespace QuantStudio.CTP.Data.Market
         //     业务日期
         public string ActionDay { get; internal set; }
 
-        public CTPMarketData(string tradingDay, string instrumentID, string exchangeID, string exchangeInstID, decimal lastPrice, decimal preSettlementPrice, decimal preClosePrice, decimal preOpenInterest,
+        public MarketData(string tradingDay, string instrumentID, string exchangeID, string exchangeInstID, decimal lastPrice, decimal preSettlementPrice, decimal preClosePrice, decimal preOpenInterest,
             decimal openPrice, decimal highestPrice, decimal lowestPrice, int volume, decimal turnover, decimal openInterest,
             decimal closePrice, decimal settlementPrice, decimal upperLimitPrice, decimal lowerLimitPrice, decimal preDelta, decimal currDelta, DateTime updateTime, int updateMillisec,
             decimal bidPrice1, int bidVolume1, decimal askPrice1, int askVolume1, decimal bidPrice2, int bidVolume2, decimal askPrice2, int askVolume2, decimal bidPrice3, int bidVolume3, decimal askPrice3, int askVolume3,

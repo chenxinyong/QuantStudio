@@ -38,6 +38,18 @@ namespace QuantStudio.Data.Market
         public decimal Close { get; set; }
 
         /// <summary>
+        /// Volume
+        /// </summary>
+        [ProtoMember(5)]
+        public int Volume { get; set; }
+
+        /// <summary>
+        /// Turnover
+        /// </summary>
+        [ProtoMember(6)]
+        public decimal Turnover { get; set; }
+
+        /// <summary>
         /// Default initializer to setup an empty bar.
         /// </summary>
         public Bar()
@@ -51,13 +63,15 @@ namespace QuantStudio.Data.Market
         /// <param name="high">Decimal High Price of this bar</param>
         /// <param name="low">Decimal Low Price of this bar</param>
         /// <param name="close">Decimal Close price of this bar</param>
-        public Bar(decimal open, decimal high, decimal low, decimal close)
+        public Bar(decimal open, decimal high, decimal low, decimal close,int volume,decimal turnover)
         {
             _openSet = open != 0;
             Open = open;
             High = high;
             Low = low;
             Close = close;
+            Volume = volume;
+            Turnover = turnover;
         }
 
         /// <summary>
@@ -65,9 +79,9 @@ namespace QuantStudio.Data.Market
         /// </summary>
         /// <param name="value">The new value</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Update(decimal value)
+        public void Update(decimal value,int volume, decimal turnover)
         {
-            Update(ref value);
+            Update(ref value,volume,turnover);
         }
 
         /// <summary>
@@ -75,7 +89,7 @@ namespace QuantStudio.Data.Market
         /// </summary>
         /// <param name="value">The new value</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Update(ref decimal value)
+        public void Update(ref decimal value,int volume,decimal turnover)
         {
             // Do not accept zero as a new value
             if (value == 0) return;
@@ -95,7 +109,7 @@ namespace QuantStudio.Data.Market
         /// </summary>
         public Bar Clone()
         {
-            return new Bar(Open, High, Low, Close);
+            return new Bar(Open, High, Low, Close,Volume,Turnover);
         }
 
         /// <summary>Returns a string that represents the current object.</summary>
@@ -106,7 +120,10 @@ namespace QuantStudio.Data.Market
             return $"O: {Open.SmartRounding()} " +
                    $"H: {High.SmartRounding()} " +
                    $"L: {Low.SmartRounding()} " +
-                   $"C: {Close.SmartRounding()}";
+                   $"C: {Close.SmartRounding()}" +
+                   $"V: {Volume}" +
+                   $"T: {Turnover.SmartRounding()}"
+                   ;
         }
     }
 }

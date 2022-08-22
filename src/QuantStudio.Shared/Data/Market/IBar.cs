@@ -25,5 +25,15 @@ namespace QuantStudio.Data.Market
         /// Closing price of the bar. Defined as the price at Start Time + TimeSpan.
         /// </summary>
         decimal Close { get; }
+
+        /// <summary>
+        /// Volume
+        /// </summary>
+        int Volume { get; }
+
+        /// <summary>
+        /// Turnover
+        /// </summary>
+        decimal Turnover { get; }
     }
 }
