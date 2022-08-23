@@ -14,14 +14,15 @@
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="6*" />
         </Grid.ColumnDefinitions>
 
-        <Label>Names</Label>
-        <ListBox Grid.Row="1" x:Name="lstNames" />
+        <Label Grid.ColumnSpan="2">Names</Label>
+        <ListBox x:Name="lstNames" Grid.ColumnSpan="2" Margin="0,25,0,0" Grid.RowSpan="2" />
 
-        <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,0,0,0">
+        <StackPanel Grid.Column="2" Margin="5,25,0,0" Grid.RowSpan="2">
             <TextBox x:Name="txtName" KeyDown="txtName_KeyDown"></TextBox>
             <Button x:Name="btnAdd" Margin="0,5,0,0" Click="ButtonAddName_Click">AddName</Button>
             <Button x:Name="btnAddOk" Margin="0,5,0,0" Click="LoadCsvFiles_Click">LoadCsvFiles

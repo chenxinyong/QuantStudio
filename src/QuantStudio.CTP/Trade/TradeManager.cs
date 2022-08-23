@@ -59,6 +59,7 @@ namespace QuantStudio.CTP.Trader
             _ctpSettings.Investor.UserID = _stringEncryptionService.Decrypt(_ctpSettings.Investor.UserID);
             _ctpSettings.Investor.Password = _stringEncryptionService.Decrypt(_ctpSettings.Investor.Password);
 
+
             _cTPTradeProxy = cTPTradeProxy;
 
             _cTPTradeProxy.Initialize(_ctpSettings, DoTradeProxySettings);

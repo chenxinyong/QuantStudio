@@ -21,6 +21,8 @@ namespace QuantStudio.CTP
             { FuturesCategory.SHFE_ni.Symbol, FuturesCategory.SHFE_ni },
             { FuturesCategory.SHFE_sn.Symbol, FuturesCategory.SHFE_sn },
             { FuturesCategory.SHFE_ss.Symbol, FuturesCategory.SHFE_ss },
+            { FuturesCategory.SHFE_bc.Symbol, FuturesCategory.SHFE_bc },
+
             // 贵金属
             { FuturesCategory.SHFE_au.Symbol, FuturesCategory.SHFE_au },
             { FuturesCategory.SHFE_ag.Symbol, FuturesCategory.SHFE_ag },
@@ -131,6 +133,45 @@ namespace QuantStudio.CTP
                     TimeOnly time = TimeOnly.FromDateTime(dateTime);
                     var list = Default[dateTime.DayOfWeek].ToList();
                     for(int i = 0; i < list.Count; i++)
+                    {
+                        if (time >= list[i].Begin && time < list[i].End)
+                        {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// CTP默认的收盘时间段
+        /// </summary>
+        public static class CTPClosingTradingTimeFrames
+        {
+            public static Dictionary<DayOfWeek, IReadOnlyList<TradingTimeFrame>> Default = new Dictionary<DayOfWeek, IReadOnlyList<TradingTimeFrame>>() {
+                // 周一
+                { DayOfWeek.Monday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(15,15),new TimeOnly(15,45)) } },
+                // 周二
+                { DayOfWeek.Tuesday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(3,0),new TimeOnly(3,30)), new TradingTimeFrame(new TimeOnly(15,15),new TimeOnly(15,45))} },
+                // 周三
+                { DayOfWeek.Wednesday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(3,0),new TimeOnly(3,30)), new TradingTimeFrame(new TimeOnly(15,15),new TimeOnly(15,45))} },
+                // 周四
+                { DayOfWeek.Thursday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(3,0),new TimeOnly(3,30)), new TradingTimeFrame(new TimeOnly(15,15),new TimeOnly(15,45))} },
+                // 周五
+                { DayOfWeek.Friday ,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(3,0),new TimeOnly(3,30)), new TradingTimeFrame(new TimeOnly(15,15),new TimeOnly(15,45))} },
+                // 周六
+                { DayOfWeek.Saturday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(3,0),new TimeOnly(3,30)) } },
+            };
+
+            public static bool IsCTPClosingTradingTradingTime(DateTime dateTime)
+            {
+                if (Default.ContainsKey(dateTime.DayOfWeek))
+                {
+                    TimeOnly time = TimeOnly.FromDateTime(dateTime);
+                    var list = Default[dateTime.DayOfWeek].ToList();
+                    for (int i = 0; i < list.Count; i++)
                     {
                         if (time >= list[i].Begin && time < list[i].End)
                         {

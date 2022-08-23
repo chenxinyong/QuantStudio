@@ -18,6 +18,8 @@ using System.Globalization;
 using QLNet;
 using Path = System.IO.Path;
 using QuantStudio.CTP.Data.Market;
+using CsvHelper.Configuration;
+using System.Linq.Dynamic.Core.Tokenizer;
 
 namespace QuantStudio.CTP.Data
 {
@@ -105,30 +107,7 @@ namespace QuantStudio.CTP.Data
             return data;
         }
 
-        private async Task DoMarketDataEvent(MarketData marketData)
-        {
-            // 放入对应的队列中
-            if (!_dictQueueMarketDatas.ContainsKey(marketData.InstrumentID))
-            {
-                _dictQueueMarketDatas.Add(marketData.InstrumentID, new Queue<MarketData>());
-            }
-
-            _dictQueueMarketDatas[marketData.InstrumentID].Enqueue(marketData);
-
-            // 最新数据
-            if (!_dictCurrentCTPTicks.ContainsKey(marketData.InstrumentID))
-            {
-                _dictCurrentCTPTicks.Add(marketData.InstrumentID, marketData);
-            }
-
-            else
-            {
-                _dictCurrentCTPTicks[marketData.InstrumentID] = marketData;
-            }
-
-            // CTP数据存储
-            await DoCloseTradingEvent();
-        }
+        #region DataApi
 
         private void _mdReceiver_OnDepthMarketDataEvent(object? sender, DepthMarketDataArgs e)
         {
@@ -156,40 +135,104 @@ namespace QuantStudio.CTP.Data
             await DoCloseTradingEvent();
         }
 
+        #endregion
+
+        private Action _autoConnecting = null;
+
+        private async Task HandlerDepthMarket()
+        {
+            ThostFtdcDepthMarketDataField depthMarketData = new ThostFtdcDepthMarketDataField();
+            while (true)
+            {
+                if(_ftdcDepthMarketDataFieldsQueue.TryDequeue(out depthMarketData))
+                {
+                    // 放入对应的队列中
+                    if (!_dictQueueMarketDatas.ContainsKey(depthMarketData.InstrumentID))
+                    {
+                        _dictQueueMarketDatas.Add(depthMarketData.InstrumentID, new Queue<MarketData>());
+                    }
+
+                    MarketData marketData = ConverTo(depthMarketData);
+                    _dictQueueMarketDatas[depthMarketData.InstrumentID].Enqueue(marketData);
+
+                    // 当前Tick
+                    if(!_dictCurrentCTPTicks.ContainsKey(depthMarketData.InstrumentID))
+                    {
+                        _dictCurrentCTPTicks.Add(depthMarketData.InstrumentID,marketData);
+                    }
+                    else
+                    {
+                        _dictCurrentCTPTicks[depthMarketData.InstrumentID] = marketData;
+                    }
+                }
+
+                await DoCloseTradingEvent();
+            }
+        }
+
         private async Task DoCloseTradingEvent()
         {
-            TimeOnly closeTrading = new TimeOnly(3, 0);
-            TimeOnly timeOnly = TimeOnly.FromDateTime(DateTime.Now);
-            if (timeOnly.Minute / 15 == 0)
+            // 自动执行收盘作业
+            if (_dictQueueMarketDatas.Values.Any() && CTPClosingTradingTimeFrames.IsCTPClosingTradingTradingTime(DateTime.Now))
             {
                 // 每分钟存储一次数据
                 foreach (var kvp in _dictQueueMarketDatas)
                 {
-                    string categoryCode = "";
-                    if (kvp.Key.Substring(1, 1).ToCharArray()[0].IsBetween('/', ':'))
+                    if(kvp.Value.Any())
                     {
-                        categoryCode = kvp.Key.Substring(0, 1);
-                    }
-                    else
-                    {
-                        categoryCode = kvp.Key.Substring(0, 2);
-                    }
-
-                    if (ExchangeCategories.ContainsKey(categoryCode))
-                    {
-                        string marketCode = ExchangeCategories[categoryCode].MarketCode;
-                        categoryCode = ExchangeCategories[categoryCode].Symbol;
-                        string symbolPath = Path.Combine(_hostEnvironment.ContentRootPath, MarketDataFolder.App_Data, marketCode, MarketDataFolder.Ticks);
-                        if (!Directory.Exists(symbolPath))
+                        string categoryCode = "";
+                        if (kvp.Key.Substring(1, 1).ToCharArray()[0].IsBetween('/', ':'))
                         {
-                            Directory.CreateDirectory(symbolPath);
+                            categoryCode = kvp.Key.Substring(0, 1);
+                        }
+                        else
+                        {
+                            categoryCode = kvp.Key.Substring(0, 2);
                         }
 
-                        // 保存数据
-                        using (var writer = new StreamWriter(Path.Combine(symbolPath, $"{kvp.Key}.csv")))
-                        using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+                        if (ExchangeCategories.ContainsKey(categoryCode))
                         {
-                            csv.WriteRecords(kvp.Value.ToList());
+                            string marketCode = ExchangeCategories[categoryCode].MarketCode;
+                            categoryCode = ExchangeCategories[categoryCode].Symbol;
+
+                            string symbolPath = Path.Combine(_hostEnvironment.ContentRootPath, MarketDataFolder.App_Data, MarketDataFolder.Ticks, marketCode, categoryCode);
+                            if (!Directory.Exists(symbolPath))
+                            {
+                                Directory.CreateDirectory(symbolPath);
+                            }
+                            string tradingDate = kvp.Value.First().TradingDay;
+                            string csvFileName = Path.Combine(symbolPath, $"{kvp.Key}_{tradingDate}.csv");
+                            if (!File.Exists(csvFileName))
+                            {
+                                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                                {
+                                    // write the header again.
+                                    HasHeaderRecord = true,
+                                };
+
+                                using (var writer = new StreamWriter(csvFileName))
+                                using (var csv = new CsvWriter(writer, config))
+                                {
+                                    await csv.WriteRecordsAsync(kvp.Value.ToList());
+                                }
+                            }
+                            else
+                            {
+                                var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+                                {
+                                    // Don't write the header again.
+                                    HasHeaderRecord = false,
+                                };
+
+                                using (var stream = File.Open(csvFileName, FileMode.Append))
+                                using (var writer = new StreamWriter(stream))
+                                using (var csv = new CsvWriter(writer, config))
+                                {
+                                    csv.WriteRecords(kvp.Value.ToList());
+                                }
+                            }
+
+                            kvp.Value.Clear();
                         }
                     }
                 }
@@ -197,48 +240,38 @@ namespace QuantStudio.CTP.Data
             await Task.CompletedTask;
         }
 
-        private void InitExchangePath(string appDataPath)
+        private List<string> GenerateInstrumentIDs()
         {
-            var categoriesExchange = ExchangeCategories.Values.GroupBy(p => p.MarketCode).ToList();
-            foreach (var exchange in categoriesExchange)
+            List<string> instrumentIDs = new List<string>();
+            var exchange = ExchangeCategories.ToList().GroupBy(p => p.Value.MarketCode);
+            foreach (var exchangeItem in exchange)
             {
-                // Itcks
-                string itcksPath = Path.Combine(appDataPath, exchange.Key, MarketDataFolder.Ticks);
-                if (!Directory.Exists(itcksPath))
+                DateOnly begin = DateOnly.FromDateTime(DateTime.Now.AddMonths(-1));
+                foreach(var item in exchangeItem)
                 {
-                    Directory.CreateDirectory(itcksPath);
-                }
+                    for (int i = 0; i <= 13; i++)
+                    {
+                        string dateTimeString = begin.AddMonths(i).ToString("yyyyMMdd");
+                        string yearMonth = dateTimeString.Substring(2,4);
+                        string contractCod = item.Value.Symbol;
 
-                // Minutes
-                string minutesPath = Path.Combine(appDataPath, exchange.Key, MarketDataFolder.Minutes);
-                if (!Directory.Exists(minutesPath))
-                {
-                    Directory.CreateDirectory(minutesPath);
-                }
+                        if (exchangeItem.Key.Equals(Exchange.CZCE.Code))
+                        {
+                            yearMonth = dateTimeString.Substring(3, 3);
+                        }
 
-                // dailies
-                string dialyPath = Path.Combine(appDataPath, exchange.Key, MarketDataFolder.Dialy);
-                if (!Directory.Exists(dialyPath))
-                {
-                    Directory.CreateDirectory(dialyPath);
+                        instrumentIDs.Add(contractCod + yearMonth);
+                    }
                 }
             }
-        }
-
-        private void InitDataPath()
-        {
-            string appDataPath = Path.Combine(_hostEnvironment.ContentRootPath, MarketDataFolder.App_Data);
-            if (!Directory.Exists(appDataPath))
-            {
-                Directory.CreateDirectory(appDataPath);
-            }
-
-            //// SHFE - 上海交易所
-            InitExchangePath(appDataPath);
+            return instrumentIDs;
         }
 
         private void DoCTPSettings(CTPSettings settings)
         {
+            List<string> subscribeInstrumentIDs = GenerateInstrumentIDs();
+
+            _mdReceiver.SetsubscribeInstrumentID(subscribeInstrumentIDs);
         }
 
         #endregion
@@ -249,10 +282,7 @@ namespace QuantStudio.CTP.Data
 
         public async void Initialize()
         {
-            if (CTPOnlineTradingTimeFrames.IsCTPOnlineTradingTime(DateTime.Now))
-            {
-                await _mdReceiver.Connect();
-            }
+
         }
 
         /// <summary>
@@ -280,15 +310,34 @@ namespace QuantStudio.CTP.Data
             _mdReceiver.OnCloseTradingEvent += _mdReceiver_OnCloseTradingEvent;
 
             _mdReceiver.Initialize(_ctpSettings, DoCTPSettings);
-
-            Initialize();
         }
 
         #endregion
 
         #region public 
 
+        public async Task RunAsync()
+        {
+            if (CTPOnlineTradingTimeFrames.IsCTPOnlineTradingTime(DateTime.Now))
+            {
+                await _mdReceiver.Connect();
+            }
 
+            _autoConnecting = async () => {
+                while (true)
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(1));
+                    if(!_mdReceiver.IsConnected)
+                    {
+                        await _mdReceiver.Connect();
+                    }
+                }
+            };
+
+            await Task.Run(() => _autoConnecting.Invoke());
+
+            await HandlerDepthMarket();
+        }
 
         #endregion
     }

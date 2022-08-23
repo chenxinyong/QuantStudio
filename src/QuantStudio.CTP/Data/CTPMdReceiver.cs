@@ -26,7 +26,11 @@ namespace QuantStudio.CTP.Data
         private FtdcMdAdapter DataApi = null;
         private int iRequestID = 0;
         private bool _isConnected = false;
-        private List<string> _subscribeInstrumentIDs = new List<string>() {  };
+        private List<string> _subscribeInstrumentIDs = new List<string>() { 
+            "ag2212","au2212","rb2301","ru2301","ru2301","ni2301","cu2210","bu2212"
+            ,"i2301","j2301","p2301","m2301","sp2301","lh2209","lu2211"
+            ,"TA301","FG2301","RM301","MA301","SR301"
+        };
 
         #endregion
 
@@ -61,22 +65,22 @@ namespace QuantStudio.CTP.Data
 
         private async Task _defaultHandlerHeartBeatEvent(object? sender, HeartBeatEventArgs e)
         {
-            while (true)
-            {
-                await Task.Delay(TimeSpan.FromMinutes(3));
+            //while (true)
+            //{
+            //    await Task.Delay(TimeSpan.FromMinutes(3));
 
-                if (!_isConnected)
-                {
-                    await DoConnect();
-                }
-            }
+            //    if (!_isConnected)
+            //    {
+            //        await DoConnect();
+            //    }
+            //}
         }
 
         private bool IsError(ThostFtdcRspInfoField rspinfo, string source)
         {
             if (rspinfo != null && rspinfo.ErrorID != 0)
             {
-                Console.WriteLine(rspinfo.ErrorMsg + ", 来源 " + source);
+                Logger.LogInformation(rspinfo.ErrorMsg + ", 来源 " + source);
                 return true;
             }
             return false;
@@ -90,8 +94,8 @@ namespace QuantStudio.CTP.Data
                     {
                         var req = new ThostFtdcReqUserLoginField();
                         req.BrokerID = _cTPSettings.Investor.BrokerID;
-                        //req.UserID = _cTPSettings.UserID;
-                        //req.Password = _cTPSettings.Password; 
+                        req.UserID = _cTPSettings.Investor.UserID;
+                        req.Password = _cTPSettings.Investor.Password; 
                         int iResult = DataApi.ReqUserLogin(req, ++iRequestID);
                     }
                     break;
@@ -105,12 +109,10 @@ namespace QuantStudio.CTP.Data
 
         private void DataApi_OnRtnEvent(object sender, OnRtnEventArgs e)
         {
-            Console.WriteLine("DataApi_OnRtnEvent " + e.EventType.ToString());
-
             var fld = Conv.P2S<ThostFtdcDepthMarketDataField>(e.Param);
             if (fld != null)
             {
-                Console.WriteLine("{0}.{1:D3} {2} {3}", fld.UpdateTime, fld.UpdateMillisec, fld.InstrumentID, fld.LastPrice);
+                Logger.LogInformation("{0}.{1:D3} {2} {3}", fld.UpdateTime, fld.UpdateMillisec, fld.InstrumentID, fld.LastPrice);
 
                 OnDepthMarketDataEvent?.Invoke(this, new DepthMarketDataArgs(fld));
             }
@@ -118,9 +120,7 @@ namespace QuantStudio.CTP.Data
 
         private async void DataApi_OnRspEvent(object sender, OnRspEventArgs e)
         {
-            Logger.LogInformation("DataApi_OnRspEvent " + e.EventType.ToString());
             bool err = IsError(e.RspInfo, e.EventType.ToString());
-
             switch (e.EventType)
             {
                 case EnumOnRspType.OnRspUserLogin:
@@ -130,16 +130,16 @@ namespace QuantStudio.CTP.Data
                         Logger.LogInformation("登录成功");
 
                         // 心跳事件
-                        HeartBeatEventArgs eventArgs = new HeartBeatEventArgs();
-                        if (OnHeartBeatEvent != null)
-                        {
-                            // Call to raise the event.
-                            OnHeartBeatEvent(this, eventArgs);
-                        }
-                        else
-                        {
-                            await _defaultHandlerHeartBeatEvent(this, eventArgs);
-                        }
+                        //HeartBeatEventArgs eventArgs = new HeartBeatEventArgs();
+                        //if (OnHeartBeatEvent != null)
+                        //{
+                        //    // Call to raise the event.
+                        //    OnHeartBeatEvent(this, eventArgs);
+                        //}
+                        //else
+                        //{
+                        //    await _defaultHandlerHeartBeatEvent(this, eventArgs);
+                        //}
 
                         await SubscribeMarketData(_subscribeInstrumentIDs);
                     }
@@ -147,7 +147,7 @@ namespace QuantStudio.CTP.Data
                 case EnumOnRspType.OnRspSubMarketData:
                     {
                         var f = Conv.P2S<ThostFtdcSpecificInstrumentField>(e.Param);
-                        if (f != null)
+                        if (f != null && !f.InstrumentID.IsNullOrEmpty())
                         {
                             Logger.LogInformation("订阅成功:" + f.InstrumentID);
                         }
@@ -243,6 +243,11 @@ namespace QuantStudio.CTP.Data
             await DoDisconnect();
 
             OnCloseTradingEvent?.Invoke(this, new CloseTradingArgs() { });
+        }
+
+        public void SetsubscribeInstrumentID(List<string> subscribeInstrumentIDs)
+        {
+            _subscribeInstrumentIDs = subscribeInstrumentIDs.ToList();
         }
 
         #endregion

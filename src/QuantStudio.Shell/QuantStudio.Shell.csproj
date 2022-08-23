@@ -9,6 +9,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.0.0" />
+        <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.0.0" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="6.0.1" />
         <PackageReference Include="Volo.Abp.Autofac" Version="5.3.3" />
     </ItemGroup>

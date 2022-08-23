@@ -59,6 +59,11 @@ namespace QuantStudio
         /// </summary>
         public static FuturesCategory SHFE_ss = new FuturesCategory("ss", "不锈钢", Market.SHFE, TradingTimeFrameType.FuturesDayOvernight);
 
+        /// <summary>
+        /// 国际铜
+        /// </summary>
+        public static FuturesCategory SHFE_bc = new FuturesCategory("bc", "国际铜", Market.SHFE, TradingTimeFrameType.FuturesDayOvernight);
+
 
         /// <summary>
         /// 沪金

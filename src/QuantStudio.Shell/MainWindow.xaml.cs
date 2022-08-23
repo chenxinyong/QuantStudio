@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using QuantStudio.CTP;
 using QuantStudio.CTP.Data;
+using QuantStudio.CTP.Trader;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,12 +26,15 @@ public partial class MainWindow : Window
     private readonly CsvFileDataPovider _csvFileMarketDataReader;
     IConfiguration _configuration;
     IHostEnvironment _environment;
+    DataManager _dataManager;
 
-    public MainWindow(IHostEnvironment environment,IConfiguration configuration, CsvFileDataPovider csvFileMarketDataReader)
+    public MainWindow(IHostEnvironment environment,IConfiguration configuration, CsvFileDataPovider csvFileMarketDataReader,DataManager dataManager)
     {
         _environment = environment;
         _configuration = configuration;
         _csvFileMarketDataReader = csvFileMarketDataReader;
+
+        _dataManager = dataManager;
 
         InitializeComponent();
     }
@@ -61,22 +65,37 @@ public partial class MainWindow : Window
         }
     }
 
-    private void LoadCsvFiles_Click(object sender, RoutedEventArgs e)
-    {
-        // LoadCsvFiles
-        List<FileInfo> fileNames = new List<FileInfo>();
+    Action _cancelWork;
 
-        string fileName = Path.Combine(_environment.ContentRootPath, CTPConsts.MarketDataFolder.App_Data, "FutAC_TickKZ_CTP_Daily_202207");
-        if (Directory.Exists(fileName))
+    private async Task DoDataManagerRun(CancellationToken token)
+    {
+        _dataManager.Initialize();
+        await _dataManager.RunAsync();
+    }
+
+    private async void LoadCsvFiles_Click(object sender, RoutedEventArgs e)
+    {
+        try
         {
-            var items = _csvFileMarketDataReader.ReadFilesAsync(fileName,"20220729");
+            var cancellationTokenSource = new CancellationTokenSource();
+
+            this._cancelWork = () =>
+            {
+                cancellationTokenSource.Cancel();
+            };
+
+            this.btnAddOk.IsEnabled = false;
+
+            var token = cancellationTokenSource.Token;
+
+            await Task.Run(() => DoDataManagerRun(token));
+        }
+        catch(Exception ex)
+        {
+
         }
 
-        //string fileName = Path.Combine(_environment.ContentRootPath, CTPConsts.MarketDataFolder.App_Data, "FutAC_TickKZ_CTP_Daily_202207","sc");
-        //if(File.Exists(fileName))
-        //{
-        //    fileNames.Add(new FileInfo(fileName));
-        //    var items = _csvFileMarketDataReader.ReadFilesAsync(fileNames);
-        //}
+        this.btnAddOk.IsEnabled = true;
+        this._cancelWork = null;
     }
 }

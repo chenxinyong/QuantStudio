@@ -251,5 +251,5 @@ paket-files/
 .idea/
 *.sln.iml
 
-# Shell
-src/QuantStudio.Shell.ConsoleApp/Logs/logs.txt
+# ToolBox
+src/QuantStudio.ToolBox.ConsoleApp/Logs/logs.txt

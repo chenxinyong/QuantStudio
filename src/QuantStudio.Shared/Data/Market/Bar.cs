@@ -79,9 +79,9 @@ namespace QuantStudio.Data.Market
         /// </summary>
         /// <param name="value">The new value</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Update(decimal value,int volume, decimal turnover)
+        public void Update(decimal value)
         {
-            Update(ref value,volume,turnover);
+            Update(ref value);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace QuantStudio.Data.Market
         /// </summary>
         /// <param name="value">The new value</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Update(ref decimal value,int volume,decimal turnover)
+        public void Update(ref decimal value)
         {
             // Do not accept zero as a new value
             if (value == 0) return;

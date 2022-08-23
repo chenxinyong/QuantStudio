@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <Import Project="..\..\common.props" />
 
@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Volo.Abp.Autofac" Version="5.3.3" />
+        <PackageReference Include="Volo.Abp.Autofac" Version="5.3.4" />
     </ItemGroup>
 
     <ItemGroup>
@@ -29,13 +29,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\QuantStudio.CTP\QuantStudio.CTP.csproj" />
-      <ProjectReference Include="..\QuantStudio.Shared\QuantStudio.Shared.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="App_Data\CTPDataDefine.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
     </ItemGroup>
 
 </Project>

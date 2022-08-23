@@ -107,12 +107,12 @@ namespace QuantStudio.CTP.Trade
 
         private void TraderApi_OnErrRtnEvent(object sender, OnErrRtnEventArgs e)
         {
-            Console.WriteLine("=====> " + e.EventType);
+            Logger.LogInformation("=====> " + e.EventType);
         }
 
         private void TraderApi_OnRtnEvent(object sender, OnRtnEventArgs e)
         {
-            Console.WriteLine("=====> " + e.EventType);
+            Logger.LogInformation("=====> " + e.EventType);
         }
 
         private void TraderApi_OnRspEvent(object sender, OnRspEventArgs e)
@@ -124,11 +124,11 @@ namespace QuantStudio.CTP.Trade
                 case EnumOnRspType.OnRspAuthenticate:
                     if (err)
                     {
-                        Logger.LogInformation("认证失败!!!");
+                        Logger.LogInformation(e.RspInfo.ErrorMsg);
                     }
                     else
                     {
-                        Logger.LogInformation("认证成功!!!");
+                        Logger.LogInformation("Login success!");
                         bool isAuth = false;
                         if (isAuth)
                         {
@@ -141,7 +141,7 @@ namespace QuantStudio.CTP.Trade
                 case EnumOnRspType.OnRspUserLogin:
                     if (err)
                     {
-                        Logger.LogInformation("登录失败");
+                        Logger.LogInformation(e.RspInfo.ErrorMsg);
                     }
                     else
                     {
@@ -186,7 +186,7 @@ namespace QuantStudio.CTP.Trade
             {
                 case EnumOnFrontType.OnFrontConnected:
                     {
-                        bool isAuthenticate = false;
+                        bool isAuthenticate = true;
                         if (isAuthenticate)
                         {
                             var req = new ThostFtdcReqAuthenticateField();

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 
-namespace QuantStudio.ConsoleApp;
+namespace QuantStudio.ToolBox;
 
 public class Program
 {

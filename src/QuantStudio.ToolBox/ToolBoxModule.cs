@@ -8,11 +8,11 @@ using Volo.Abp;
 using Volo.Abp.Autofac;
 using Volo.Abp.Modularity;
 
-namespace QuantStudio.ConsoleApp;
+namespace QuantStudio.ToolBox;
 
 [DependsOn(
     typeof(AbpAutofacModule)
-    ,typeof(CTPModule)
+    , typeof(CTPModule)
 )]
 public class ToolBoxModule : AbpModule
 {
@@ -20,7 +20,7 @@ public class ToolBoxModule : AbpModule
     {
         var logger = context.ServiceProvider.GetRequiredService<ILogger<ToolBoxModule>>();
         var configuration = context.ServiceProvider.GetRequiredService<IConfiguration>();
-        logger.LogInformation($"SelfUrl => {configuration["SelfUrl"]}");
+        logger.LogInformation($"SelfUrl => {configuration["App:SelfUrl"]}");
 
         var hostEnvironment = context.ServiceProvider.GetRequiredService<IHostEnvironment>();
         logger.LogInformation($"EnvironmentName => {hostEnvironment.EnvironmentName}");
