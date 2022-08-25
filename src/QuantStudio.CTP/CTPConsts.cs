@@ -117,7 +117,7 @@ namespace QuantStudio.CTP
                 // 周三
                 { DayOfWeek.Wednesday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0)),new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30))} },
                 // 周四
-                { DayOfWeek.Thursday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0)),new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30))} },
+                { DayOfWeek.Thursday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0)),new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30)) ,new TradingTimeFrame(new TimeOnly(20,30),new TimeOnly(23,59,59,999)) } },
                 // 周五
                 { DayOfWeek.Friday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0))
                     ,new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30)) 

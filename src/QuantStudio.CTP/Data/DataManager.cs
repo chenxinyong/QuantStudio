@@ -71,7 +71,7 @@ namespace QuantStudio.CTP.Data
 
                 MarketData.PreDelta.SafeDecimalCast().Normalize(),
                 MarketData.CurrDelta.SafeDecimalCast().Normalize(),
-                DateTime.Parse(MarketData.UpdateTime),
+                TimeOnly.Parse(MarketData.UpdateTime),
                 MarketData.UpdateMillisec,
 
                 // 买1/卖1
@@ -132,12 +132,12 @@ namespace QuantStudio.CTP.Data
         private async void _mdReceiver_OnCloseTradingEvent(object? sender, CloseTradingArgs e)
         {
             // 收盘作业
-            await DoCloseTradingEvent();
+            await DoCloseTradingEvent(DateTime.Now);
         }
 
         #endregion
 
-        private Action _autoConnecting = null;
+        private Action _autoConnecting;
 
         private async Task HandlerDepthMarket()
         {
@@ -166,14 +166,14 @@ namespace QuantStudio.CTP.Data
                     }
                 }
 
-                await DoCloseTradingEvent();
+                await DoCloseTradingEvent(DateTime.Now);
             }
         }
 
-        private async Task DoCloseTradingEvent()
+        private async Task DoCloseTradingEvent(DateTime dt)
         {
             // 自动执行收盘作业
-            if (_dictQueueMarketDatas.Values.Any() && CTPClosingTradingTimeFrames.IsCTPClosingTradingTradingTime(DateTime.Now))
+            if (_dictQueueMarketDatas.Values.Any() && CTPClosingTradingTimeFrames.IsCTPClosingTradingTradingTime(dt))
             {
                 // 每分钟存储一次数据
                 foreach (var kvp in _dictQueueMarketDatas)
@@ -280,9 +280,18 @@ namespace QuantStudio.CTP.Data
 
         #region ctor / Initialize
 
-        public async void Initialize()
+        public async Task Initialize()
         {
-
+            _autoConnecting = async () => {
+                while (true)
+                {
+                    await Task.Delay(TimeSpan.FromMinutes(3));
+                    if (!_mdReceiver.IsConnected && CTPOnlineTradingTimeFrames.IsCTPOnlineTradingTime(DateTime.Now))
+                    {
+                        await _mdReceiver.Connect();
+                    }
+                }
+            };
         }
 
         /// <summary>
@@ -323,20 +332,18 @@ namespace QuantStudio.CTP.Data
                 await _mdReceiver.Connect();
             }
 
-            _autoConnecting = async () => {
-                while (true)
-                {
-                    await Task.Delay(TimeSpan.FromMinutes(1));
-                    if(!_mdReceiver.IsConnected)
-                    {
-                        await _mdReceiver.Connect();
-                    }
-                }
-            };
-
-            await Task.Run(() => _autoConnecting.Invoke());
+            //  await Task.Run(() => _autoConnecting.Invoke());
 
             await HandlerDepthMarket();
+        }
+
+        /// <summary>
+        /// 收盘作业
+        /// </summary>
+        /// <returns></returns>
+        public async Task CloseTradingAsync()
+        {
+            await DoCloseTradingEvent(DateTime.Now);
         }
 
         #endregion

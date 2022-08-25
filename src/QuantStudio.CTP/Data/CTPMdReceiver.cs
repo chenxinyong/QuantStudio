@@ -26,11 +26,7 @@ namespace QuantStudio.CTP.Data
         private FtdcMdAdapter DataApi = null;
         private int iRequestID = 0;
         private bool _isConnected = false;
-        private List<string> _subscribeInstrumentIDs = new List<string>() { 
-            "ag2212","au2212","rb2301","ru2301","ru2301","ni2301","cu2210","bu2212"
-            ,"i2301","j2301","p2301","m2301","sp2301","lh2209","lu2211"
-            ,"TA301","FG2301","RM301","MA301","SR301"
-        };
+        private List<string> _subscribeInstrumentIDs = new List<string>() { };
 
         #endregion
 
@@ -101,7 +97,8 @@ namespace QuantStudio.CTP.Data
                     break;
                 case EnumOnFrontType.OnFrontDisconnected:
                     {
-
+                        _isConnected = false;
+                        Logger.LogInformation("CTP OnFrontDisconnected");
                     }
                     break;
             }
@@ -112,8 +109,12 @@ namespace QuantStudio.CTP.Data
             var fld = Conv.P2S<ThostFtdcDepthMarketDataField>(e.Param);
             if (fld != null)
             {
-                Logger.LogInformation("{0}.{1:D3} {2} {3}", fld.UpdateTime, fld.UpdateMillisec, fld.InstrumentID, fld.LastPrice);
+                if(!_isConnected)
+                {
+                    _isConnected = true;
+                }
 
+                Logger.LogInformation("{0}.{1:D3} {2} {3}", fld.UpdateTime, fld.UpdateMillisec, fld.InstrumentID, fld.LastPrice);
                 OnDepthMarketDataEvent?.Invoke(this, new DepthMarketDataArgs(fld));
             }
         }
@@ -126,7 +127,6 @@ namespace QuantStudio.CTP.Data
                 case EnumOnRspType.OnRspUserLogin:
                     if (!err)
                     {
-                        _isConnected = true;
                         Logger.LogInformation("登录成功");
 
                         // 心跳事件

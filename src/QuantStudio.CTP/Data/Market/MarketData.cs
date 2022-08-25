@@ -116,7 +116,7 @@ namespace QuantStudio.CTP.Data.Market
         //
         // 摘要:
         //     最后修改时间
-        public DateTime UpdateTime { get; internal set; }
+        public TimeOnly UpdateTime { get; internal set; }
 
         //
         // 摘要:
@@ -235,7 +235,7 @@ namespace QuantStudio.CTP.Data.Market
 
         public MarketData(string tradingDay, string instrumentID, string exchangeID, string exchangeInstID, decimal lastPrice, decimal preSettlementPrice, decimal preClosePrice, decimal preOpenInterest,
             decimal openPrice, decimal highestPrice, decimal lowestPrice, int volume, decimal turnover, decimal openInterest,
-            decimal closePrice, decimal settlementPrice, decimal upperLimitPrice, decimal lowerLimitPrice, decimal preDelta, decimal currDelta, DateTime updateTime, int updateMillisec,
+            decimal closePrice, decimal settlementPrice, decimal upperLimitPrice, decimal lowerLimitPrice, decimal preDelta, decimal currDelta, TimeOnly updateTime, int updateMillisec,
             decimal bidPrice1, int bidVolume1, decimal askPrice1, int askVolume1, decimal bidPrice2, int bidVolume2, decimal askPrice2, int askVolume2, decimal bidPrice3, int bidVolume3, decimal askPrice3, int askVolume3,
             decimal bidPrice4, int bidVolume4, decimal askPrice4, int askVolume4, decimal bidPrice5, int bidVolume5, decimal askPrice5, int askVolume5, decimal averagePrice, string actionDay
             )

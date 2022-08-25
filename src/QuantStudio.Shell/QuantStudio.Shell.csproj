@@ -42,4 +42,13 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Services\" />
+      <Folder Include="Mvvm\" />
+      <Folder Include="Ioc\" />
+      <Folder Include="Extensions\" />
+      <Folder Include="Navigation\" />
+      <Folder Include="Views\" />
+    </ItemGroup>
+
 </Project>

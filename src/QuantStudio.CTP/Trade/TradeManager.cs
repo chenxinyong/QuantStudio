@@ -14,7 +14,7 @@ using static QuantStudio.CTP.CTPConsts;
 using Microsoft.Extensions.Logging;
 using QuantStudio.CTP.Trade;
 
-namespace QuantStudio.CTP.Trader
+namespace QuantStudio.CTP.Trade
 {
     /// <summary>
     /// CTP交易管理类
@@ -64,13 +64,13 @@ namespace QuantStudio.CTP.Trader
 
             _cTPTradeProxy.Initialize(_ctpSettings, DoTradeProxySettings);
 
-            Initialize();
+            // Initialize();
         }
 
 
         public async void Initialize()
         {
-            await _cTPTradeProxy.Connect();
+            // await _cTPTradeProxy.Connect();
         }
 
         #endregion

@@ -13,5 +13,8 @@ public class ShellModule : AbpModule
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
         context.Services.AddSingleton<MainWindow>();
+
+        // Viewmodels
+        context.Services.AddTransient<MainViewModel>();
     }
 }

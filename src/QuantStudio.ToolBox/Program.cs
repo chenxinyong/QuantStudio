@@ -20,7 +20,9 @@ public class Program
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .Enrich.FromLogContext()
             .WriteTo.Async(c => c.File("Logs/logs.txt"))
+#if DEBUG
             .WriteTo.Async(c => c.Console())
+#endif
             .CreateLogger();
 
         try

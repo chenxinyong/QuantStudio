@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using QuantStudio.CTP.Data;
-using QuantStudio.CTP.Trader;
+using QuantStudio.CTP.Trade;
 using Serilog;
 using Volo.Abp;
 
@@ -16,6 +16,7 @@ public class ToolBoxHostedService : IHostedService
 
     private readonly IConfiguration _configuration;
     private readonly IHostEnvironment _hostEnvironment;
+    private DataManager _dataManager;
 
     public ToolBoxHostedService(IConfiguration configuration, IHostEnvironment hostEnvironment)
     {
@@ -36,13 +37,15 @@ public class ToolBoxHostedService : IHostedService
 
         await _abpApplication.InitializeAsync();
 
-        var dataManager = _abpApplication.ServiceProvider.GetRequiredService<DataManager>();
+        _dataManager = _abpApplication.ServiceProvider.GetRequiredService<DataManager>();
 
-        dataManager.Initialize();
+        await _dataManager.Initialize();
+        await _dataManager.RunAsync();
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
+        await _dataManager.CloseTradingAsync();
         await _abpApplication.ShutdownAsync();
     }
 }

@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using QuantStudio.CTP.Data;
 using Serilog;
 using Serilog.Events;
 using Volo.Abp;
-using static System.Net.Mime.MediaTypeNames;
-using Application = System.Windows.Application;
 
 namespace QuantStudio.Shell;
 
@@ -17,6 +17,8 @@ public partial class App : Application
 {
     private readonly IHost _host;
     private readonly IAbpApplicationWithExternalServiceProvider _abpApplication;
+
+    private DataManager dataManager;
 
     private IHost CreateHostBuilder()
     {
@@ -58,11 +60,18 @@ public partial class App : Application
         {
             Log.Information("Starting WPF host.");
             await _host.StartAsync();
-
             Initialize(_host.Services);
 
-            _host.Services.GetService<MainWindow>()?.Show();
+            // splashScreenWindow
 
+            // 主窗体
+            MainWindow mainWindow = _host.Services.GetService<MainWindow>();
+
+            mainWindow.RunDataManagerAsync();
+
+            mainWindow.Show();
+
+            base.OnStartup(e);
         }
         catch (Exception ex)
         {
@@ -77,4 +86,14 @@ public partial class App : Application
         _host.Dispose();
         Log.CloseAndFlush();
     }
+
+    /// <summary>
+    /// Gets the current <see cref="App"/> instance in use
+    /// </summary>
+    public new static App Current => (App)Application.Current;
+
+    public IServiceProvider Services { get; }
+
+    public ILogger Logger { get; }
+
 }
