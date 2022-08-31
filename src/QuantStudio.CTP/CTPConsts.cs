@@ -109,35 +109,21 @@ namespace QuantStudio.CTP
         /// </summary>
         public static class CTPOnlineTradingTimeFrames
         {
-            public static Dictionary<DayOfWeek, IReadOnlyList<TradingTimeFrame>> Default = new Dictionary<DayOfWeek, IReadOnlyList<TradingTimeFrame>>() {
+            public static IReadOnlyList<TradingTimeFrame> Default = new List<TradingTimeFrame>() {
                 // 周一
-                { DayOfWeek.Monday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0)),new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30))} },
-                // 周二
-                { DayOfWeek.Tuesday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0)),new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30))} },
-                // 周三
-                { DayOfWeek.Wednesday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0)),new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30))} },
-                // 周四
-                { DayOfWeek.Thursday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0)),new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30)) ,new TradingTimeFrame(new TimeOnly(20,30),new TimeOnly(23,59,59,999)) } },
-                // 周五
-                { DayOfWeek.Friday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0))
-                    ,new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30)) 
-                    ,new TradingTimeFrame(new TimeOnly(21,0),new TimeOnly(23,59,59,999)) } },
-                // 周六
-                { DayOfWeek.Saturday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(3,0))} }
+                new TradingTimeFrame(new TimeOnly(20,45),new TimeOnly(3,00)), 
+                new TradingTimeFrame(new TimeOnly(8,30),new TimeOnly(15,30))
             };
 
             public static bool IsCTPOnlineTradingTime(DateTime dateTime)
             {
-                if(Default.ContainsKey(dateTime.DayOfWeek))
+                TimeOnly time = TimeOnly.FromDateTime(dateTime);
+                var list = Default.ToList();
+                for (int i = 0; i < list.Count; i++)
                 {
-                    TimeOnly time = TimeOnly.FromDateTime(dateTime);
-                    var list = Default[dateTime.DayOfWeek].ToList();
-                    for(int i = 0; i < list.Count; i++)
+                    if (time.IsBetween(list[i].Begin, list[i].End))
                     {
-                        if (time >= list[i].Begin && time < list[i].End)
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
 
@@ -150,33 +136,20 @@ namespace QuantStudio.CTP
         /// </summary>
         public static class CTPClosingTradingTimeFrames
         {
-            public static Dictionary<DayOfWeek, IReadOnlyList<TradingTimeFrame>> Default = new Dictionary<DayOfWeek, IReadOnlyList<TradingTimeFrame>>() {
-                // 周一
-                { DayOfWeek.Monday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(15,15),new TimeOnly(15,45)) } },
-                // 周二
-                { DayOfWeek.Tuesday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(3,0),new TimeOnly(3,30)), new TradingTimeFrame(new TimeOnly(15,15),new TimeOnly(15,45))} },
-                // 周三
-                { DayOfWeek.Wednesday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(3,0),new TimeOnly(3,30)), new TradingTimeFrame(new TimeOnly(15,15),new TimeOnly(15,45))} },
-                // 周四
-                { DayOfWeek.Thursday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(3,0),new TimeOnly(3,30)), new TradingTimeFrame(new TimeOnly(15,15),new TimeOnly(15,45))} },
-                // 周五
-                { DayOfWeek.Friday ,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(3,0),new TimeOnly(3,30)), new TradingTimeFrame(new TimeOnly(15,15),new TimeOnly(15,45))} },
-                // 周六
-                { DayOfWeek.Saturday,new List<TradingTimeFrame>(){ new TradingTimeFrame(new TimeOnly(3,0),new TimeOnly(3,30)) } },
+            public static IReadOnlyList<TradingTimeFrame> Default = new List<TradingTimeFrame>() {
+                new TradingTimeFrame(new TimeOnly(2,15),new TimeOnly(3,15)), 
+                new TradingTimeFrame(new TimeOnly(15,15),new TimeOnly(15,45))
             };
 
             public static bool IsCTPClosingTradingTradingTime(DateTime dateTime)
             {
-                if (Default.ContainsKey(dateTime.DayOfWeek))
+                TimeOnly time = TimeOnly.FromDateTime(dateTime);
+                var list = Default.ToList();
+                for (int i = 0; i < list.Count; i++)
                 {
-                    TimeOnly time = TimeOnly.FromDateTime(dateTime);
-                    var list = Default[dateTime.DayOfWeek].ToList();
-                    for (int i = 0; i < list.Count; i++)
+                    if (time >= list[i].Begin && time < list[i].End)
                     {
-                        if (time >= list[i].Begin && time < list[i].End)
-                        {
-                            return true;
-                        }
+                        return true;
                     }
                 }
 

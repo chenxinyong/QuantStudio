@@ -1,6 +1,5 @@
 ﻿using CTP;
 using Microsoft.Extensions.Logging;
-using QLNet;
 using QuantStudio.CTP.Data;
 using System;
 using System.Collections.Generic;

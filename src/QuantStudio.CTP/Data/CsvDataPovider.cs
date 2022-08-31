@@ -1,20 +1,22 @@
-﻿using CsvHelper;
+﻿
 using CTP;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using QuantStudio.CTP.Data.Market;
 using Serilog.Core;
 using Serilog.Events;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Volo.Abp.DependencyInjection;
+using QuantStudio.CTP.Data.Market;
+using CsvHelper;
 
 namespace QuantStudio.CTP.Data
 {
@@ -22,7 +24,7 @@ namespace QuantStudio.CTP.Data
     /// <summary>
     /// Csv文件格式的数据读写提供者
     /// </summary>
-    public class CsvFileDataPovider : ITransientDependency
+    public class CsvDataPovider : ITransientDependency
     {
         #region private
 
@@ -33,11 +35,11 @@ namespace QuantStudio.CTP.Data
 
         #region Ctor / Initialize
 
-        public ILogger<CsvFileDataPovider> Logger { get; set; }
+        public ILogger<CsvDataPovider> Logger { get; set; }
 
-        public CsvFileDataPovider(IConfiguration configuration, IHostEnvironment environment)
+        public CsvDataPovider(IConfiguration configuration, IHostEnvironment environment)
         {
-            Logger = NullLogger<CsvFileDataPovider>.Instance;
+            Logger = NullLogger<CsvDataPovider>.Instance;
             _configuration = configuration;
             _environment = environment;
         }
@@ -49,36 +51,19 @@ namespace QuantStudio.CTP.Data
 
         #endregion
 
-        public async Task<List<MarketData>> ReadFilesAsync(string folderName, string fileName)
+        public async Task<List<MarketData>> ReadFilesAsync(string fileName)
         {
-            // 文件夹
-            DirectoryInfo folder = new DirectoryInfo(folderName);
-            FileInfo[] files = folder.GetFiles($"*{fileName}*", SearchOption.AllDirectories);
-            List<FileInfo> fileNames = new List<FileInfo>();
-            fileNames.AddRange(files);
-
-            List<MarketData> cTPMarketDatas = await ReadFilesAsync(fileNames);
-
-            return cTPMarketDatas;
-        }
-
-        public async Task<List<MarketData>> ReadFilesAsync(List<FileInfo> fileNames)
-        {
-            List<MarketData> dictItems = new List<MarketData>();
-            foreach (FileInfo fileInfo in fileNames)
+            List<MarketData> mdList = new List<MarketData>();
+            
+            if(File.Exists(fileName))
             {
                 // fileName
-                string[] fileNameSplits = fileInfo.Name.Split('_');
-                string quoteDate = fileNameSplits[1].Split('.')[0];
-                quoteDate = $"{quoteDate.Substring(0, 4)}-{quoteDate.Substring(4, 2)}-{quoteDate.Substring(6, 2)}";
-
-                DateOnly date = DateOnly.Parse(quoteDate);
-                using (var reader = new StreamReader(fileInfo.FullName))
+                using (var reader = new StreamReader(fileName))
                 {
                     using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                     {
                         var records = csv.GetRecords<MarketData>();
-                        if(await csv.ReadAsync())
+                        if (await csv.ReadAsync())
                         {
                             csv.ReadHeader();
 
@@ -90,28 +75,16 @@ namespace QuantStudio.CTP.Data
                                      csv.GetField<decimal>(14), csv.GetField<decimal>(15), csv.GetField<decimal>(16), csv.GetField<decimal>(17), csv.GetField<decimal>(18), csv.GetField<decimal>(19), TimeOnly.Parse($"{csv.GetField<string>(20)}"), csv.GetField<int>(21),
                                      csv.GetField<decimal>(22), csv.GetField<int>(23), csv.GetField<decimal>(24), csv.GetField<int>(25), csv.GetField<decimal>(26), csv.GetField<int>(27), csv.GetField<decimal>(28), csv.GetField<int>(29), csv.GetField<decimal>(30), csv.GetField<int>(31), csv.GetField<decimal>(32), csv.GetField<int>(33),
                                      csv.GetField<decimal>(34), csv.GetField<int>(35), csv.GetField<decimal>(36), csv.GetField<int>(37), csv.GetField<decimal>(38), csv.GetField<int>(39), csv.GetField<decimal>(40), csv.GetField<int>(41), csv.GetField<decimal>(42), csv.GetField<string>(43)
-                                    ); ;
+                                    ); 
 
-                                dictItems.Add(record);
+                                mdList.Add(record);
                             }
                         }
                     }
                 }
             }
 
-            return dictItems;
-        }
-
-        public async Task WriteFilesAsync(List<MarketData> marketDatas,Exchange exchange)
-        {
-            try
-            {
-
-            }
-            catch(Exception ex)
-            {
-
-            }
+            return mdList;
         }
     }
 }

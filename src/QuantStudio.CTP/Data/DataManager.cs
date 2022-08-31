@@ -15,7 +15,6 @@ using QuantStudio.Data.Market;
 using static QuantStudio.CTP.CTPConsts;
 using CsvHelper;
 using System.Globalization;
-using QLNet;
 using Path = System.IO.Path;
 using QuantStudio.CTP.Data.Market;
 using CsvHelper.Configuration;

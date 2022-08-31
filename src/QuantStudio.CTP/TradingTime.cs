@@ -66,20 +66,17 @@ namespace QuantStudio
         /// 期货隔夜夜盘 -  [ "21:00-01:00", "09:00-10:15", "10:30-11:30", "13:30-15:00" ]
         /// </summary>
         public IReadOnlyList<TradingTimeFrame> FuturesDayOvernight { get; private set; } = new List<TradingTimeFrame>() {
-            new TradingTimeFrame(new TimeOnly(21,0),new TimeOnly(23,59,59,999)),
-            new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(1,0)),
+            new TradingTimeFrame(new TimeOnly(21,0),new TimeOnly(1,0)),
             new TradingTimeFrame(new TimeOnly(9,0),new TimeOnly(10,15)),
             new TradingTimeFrame(new TimeOnly(10,30),new TimeOnly(11,30)),
             new TradingTimeFrame(new TimeOnly(13,30),new TimeOnly(15,0))
         };
 
         /// <summary>
-        /// 期货隔夜夜盘 -  [ "21:00-02:30", "09:00-10:15", "10:30-11:30", "13:30-15:00" ]
+        /// 期货隔夜夜盘长时间段 -  [ "21:00-02:30", "09:00-10:15", "10:30-11:30", "13:30-15:00" ]
         /// </summary>
         public IReadOnlyList<TradingTimeFrame> FuturesDayOvernightLong { get; private set; } = new List<TradingTimeFrame>() {
-            new TradingTimeFrame(new TimeOnly(21,0,0),new TimeOnly(23,59,59,999)),
-            new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(2,30)),
-            new TradingTimeFrame(new TimeOnly(0,0),new TimeOnly(1,0)),
+            new TradingTimeFrame(new TimeOnly(21,0,0),new TimeOnly(2,30)),
             new TradingTimeFrame(new TimeOnly(9,0),new TimeOnly(10,15)),
             new TradingTimeFrame(new TimeOnly(10,30),new TimeOnly(11,30)),
             new TradingTimeFrame(new TimeOnly(13,30),new TimeOnly(15,0))

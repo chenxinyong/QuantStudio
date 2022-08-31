@@ -5,8 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuantStudio.Shell"
         mc:Ignorable="d"
-        Title="SplashWindow" Height="450" Width="800">
+        x:Name="SplashView"
+        Title="SplashWindow" Height="480" Width="800">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="80"></RowDefinition>
+        </Grid.RowDefinitions>
     </Grid>
 </Window>

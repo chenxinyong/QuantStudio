@@ -66,9 +66,6 @@ public partial class App : Application
 
             // 主窗体
             MainWindow mainWindow = _host.Services.GetService<MainWindow>();
-
-            mainWindow.RunDataManagerAsync();
-
             mainWindow.Show();
 
             base.OnStartup(e);

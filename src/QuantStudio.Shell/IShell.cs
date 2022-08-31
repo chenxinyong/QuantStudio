@@ -9,8 +9,8 @@ namespace QuantStudio.Shell
 {
     public interface IShell : ISingletonDependency
     {
-        public Task RunDataManagerAsync();
+        //public Task RunDataManagerAsync();
 
-        public Task StopDataManagerAsync();
+        //public Task StopDataManagerAsync();
     }
 }

@@ -6,6 +6,13 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using QuantStudio.CTP.Data;
 using QuantStudio.CTP.Trade;
+using System;
+using System.IO;
+using System.Windows.Input;
+using QuantStudio.CTP.Data.Market;
+using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
+using Path = System.IO.Path;
 
 namespace QuantStudio.Shell
 {
@@ -16,30 +23,72 @@ namespace QuantStudio.Shell
     {
         private DataManager _dataManager;
         private TradeManager _tradeManager;
-        public MainWindow(DataManager dataManager,TradeManager tradeManager, MainViewModel viewModel)
+        private CsvDataPovider _csvFileDataPovider;
+        public MainWindow(DataManager dataManager,TradeManager tradeManager, MainViewModel viewModel, CsvDataPovider csvFileDataPovider)
         {
             _dataManager = dataManager;
             _tradeManager = tradeManager;
+            _csvFileDataPovider = csvFileDataPovider;
             this.DataContext = viewModel;
 
             InitializeComponent();
         }
 
+
         #region IShell
 
-        public async Task RunDataManagerAsync()
-        {
-            Task.Run(() => {
-                _dataManager.Initialize();
-                _dataManager.RunAsync();
-            });
-        }
 
-        public async Task StopDataManagerAsync()
-        {
-            await Task.CompletedTask;
-        }
 
         #endregion
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // If data is dirty, prompt user and ask for a response
+            bool isTradingNow = true;
+            if (isTradingNow)
+            {
+                var result = MessageBox.Show("是否确定关闭应用程序？","提示",MessageBoxButton.YesNo);
+
+                // User doesn't want to close, cancel closure
+                if (result == MessageBoxResult.No)
+                {
+                    // 保存数据或其他重要的操作
+
+                    e.Cancel = true;
+                }
+            }
+        }
+
+
+        private async void btnLoadCsvFiles_Click(object sender, RoutedEventArgs e)
+        {
+            Dictionary<string, List<MarketData>> dict = new Dictionary<string, List<MarketData>>();
+            // loadCsvFiles
+            string folderName =  Path.Combine( $"D:\\Ticks\\App_Data\\Ticks");
+            string symbol = "fu2301";
+            DirectoryInfo folder = new DirectoryInfo(folderName);
+            FileInfo[] files = folder.GetFiles($"*{symbol}*", SearchOption.AllDirectories);
+            List<FileInfo> fileNames = new List<FileInfo>();
+            fileNames.AddRange(files);
+            foreach(FileInfo fileInfo in fileNames)
+            {
+                string[] fileNameSplits = fileInfo.Name.Split('_');
+                string quoteDate = fileNameSplits[1].Split('.')[0];
+                // quoteDate = $"{quoteDate.Substring(0, 4)}{quoteDate.Substring(4, 2)}{quoteDate.Substring(6, 2)}";
+
+                var tResult = await _csvFileDataPovider.ReadFilesAsync(fileInfo.FullName);
+                if(tResult.Any())
+                {
+                    if(!dict.ContainsKey(quoteDate))
+                    {
+                        dict.Add(quoteDate, new List<MarketData>() {});
+                    }
+
+                    dict[quoteDate] = tResult;
+                }
+            }
+
+            // 保存Tick数据
+        }
     }
 }

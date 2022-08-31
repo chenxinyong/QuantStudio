@@ -39,13 +39,13 @@ public class ToolBoxHostedService : IHostedService
 
         _dataManager = _abpApplication.ServiceProvider.GetRequiredService<DataManager>();
 
-        await _dataManager.Initialize();
-        await _dataManager.RunAsync();
+        await _dataManager?.Initialize();
+        await _dataManager?.RunAsync();
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        await _dataManager.CloseTradingAsync();
+        await _dataManager?.CloseTradingAsync();
         await _abpApplication.ShutdownAsync();
     }
 }
