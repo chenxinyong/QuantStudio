@@ -6,12 +6,23 @@
         xmlns:local="clr-namespace:QuantStudio.Shell"
         mc:Ignorable="d"
         x:Name="SplashView"
-        Title="SplashWindow" Height="480" Width="800">
+        Title="QuantStudio" Height="480" Width="800" WindowState="Normal"  WindowStyle="None"  WindowStartupLocation="CenterScreen"
+         Loaded="SplashView_Loaded"
+        >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="100"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="80"></RowDefinition>
         </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Height="100" VerticalAlignment="Bottom">
+            <Label x:Name="txtDesctiption" FontSize="14" Height="35" Width="780" Margin="10,20,0,0" Content=""/>
+        </StackPanel>
+        <StackPanel Grid.Row="1">
+            
+        </StackPanel>
+        <StackPanel Grid.Row="2">
+            <TextBlock x:Name="txtStatus" HorizontalAlignment="Center" FontSize="24" Margin="0,20,0,0">正在加载数据...</TextBlock>
+        </StackPanel>
     </Grid>
 </Window>

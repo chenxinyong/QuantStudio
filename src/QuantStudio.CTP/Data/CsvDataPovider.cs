@@ -24,7 +24,7 @@ namespace QuantStudio.CTP.Data
     /// <summary>
     /// Csv文件格式的数据读写提供者
     /// </summary>
-    public class CsvDataPovider : ITransientDependency
+    public class CsvDataPovider : ISingletonDependency
     {
         #region private
 
@@ -37,7 +37,7 @@ namespace QuantStudio.CTP.Data
 
         public ILogger<CsvDataPovider> Logger { get; set; }
 
-        public CsvDataPovider(IConfiguration configuration, IHostEnvironment environment)
+        public CsvDataPovider(IConfiguration configuration,IHostEnvironment environment)
         {
             Logger = NullLogger<CsvDataPovider>.Instance;
             _configuration = configuration;

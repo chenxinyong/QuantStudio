@@ -19,27 +19,14 @@ namespace QuantStudio.Shell
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window ,IShell
+    public partial class MainWindow : Window
     {
-        private DataManager _dataManager;
-        private TradeManager _tradeManager;
-        private CsvDataPovider _csvFileDataPovider;
-        public MainWindow(DataManager dataManager,TradeManager tradeManager, MainViewModel viewModel, CsvDataPovider csvFileDataPovider)
+        public MainWindow(MainViewModel viewModel)
         {
-            _dataManager = dataManager;
-            _tradeManager = tradeManager;
-            _csvFileDataPovider = csvFileDataPovider;
             this.DataContext = viewModel;
 
             InitializeComponent();
         }
-
-
-        #region IShell
-
-
-
-        #endregion
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
@@ -62,6 +49,9 @@ namespace QuantStudio.Shell
 
         private async void btnLoadCsvFiles_Click(object sender, RoutedEventArgs e)
         {
+            var _csvFileDataPovider = App.Current.Services.GetService<CsvDataPovider>();
+            var _shell = App.Current.ShellEngine;
+
             Dictionary<string, List<MarketData>> dict = new Dictionary<string, List<MarketData>>();
             // loadCsvFiles
             string folderName =  Path.Combine( $"D:\\Ticks\\App_Data\\Ticks");
@@ -89,6 +79,11 @@ namespace QuantStudio.Shell
             }
 
             // 保存Tick数据
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            App.Current.ShellEngine
         }
     }
 }

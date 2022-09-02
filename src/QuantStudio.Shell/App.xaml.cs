@@ -17,8 +17,7 @@ public partial class App : Application
 {
     private readonly IHost _host;
     private readonly IAbpApplicationWithExternalServiceProvider _abpApplication;
-
-    private DataManager dataManager;
+    private readonly IShellEngine _shellEngine;
 
     private IHost CreateHostBuilder()
     {
@@ -47,11 +46,12 @@ public partial class App : Application
 #endif
             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
             .Enrich.FromLogContext()
-            .WriteTo.Async(c => c.File("Logs/logs.txt"))
+            .WriteTo.Async(c => c.File("Logs/logs.txt", rollingInterval: RollingInterval.Day))
             .CreateLogger();
 
         _host = CreateHostBuilder();
         _abpApplication = _host.Services.GetService<IAbpApplicationWithExternalServiceProvider>();
+        _shellEngine = _host.Services.GetService<IShellEngine>();
     }
 
     protected async override void OnStartup(StartupEventArgs e)
@@ -60,12 +60,22 @@ public partial class App : Application
         {
             Log.Information("Starting WPF host.");
             await _host.StartAsync();
+
             Initialize(_host.Services);
 
-            // splashScreenWindow
 
             // 主窗体
             MainWindow mainWindow = _host.Services.GetService<MainWindow>();
+           
+            // splashScreenWindow
+
+            SplashWindow splashWindow = _host.Services.GetService<SplashWindow>();
+            splashWindow.Show();
+
+            await Task.Delay(1000 * 3);
+
+            splashWindow.Close();
+
             mainWindow.Show();
 
             base.OnStartup(e);
@@ -89,8 +99,10 @@ public partial class App : Application
     /// </summary>
     public new static App Current => (App)Application.Current;
 
-    public IServiceProvider Services { get; }
+    public IServiceProvider Services { get { return _host.Services; } }
 
     public ILogger Logger { get; }
+
+    public IShellEngine ShellEngine { get { return _shellEngine; } }
 
 }

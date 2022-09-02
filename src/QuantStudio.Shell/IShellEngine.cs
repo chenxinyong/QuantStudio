@@ -7,10 +7,12 @@ using Volo.Abp.DependencyInjection;
 
 namespace QuantStudio.Shell
 {
-    public interface IShell : ISingletonDependency
+    public interface IShellEngine : ISingletonDependency
     {
-        //public Task RunDataManagerAsync();
+        public bool IsDataManagerConnected { get; }
 
-        //public Task StopDataManagerAsync();
+        public Task RunDataManagerAsync();
+
+        public Task StopDataManagerAsync();
     }
 }

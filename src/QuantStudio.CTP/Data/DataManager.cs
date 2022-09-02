@@ -128,17 +128,17 @@ namespace QuantStudio.CTP.Data
             }
         }
 
-        private async void _mdReceiver_OnCloseTradingEvent(object? sender, CloseTradingArgs e)
+        private void _mdReceiver_OnCloseTradingEvent(object? sender, CloseTradingArgs e)
         {
             // 收盘作业
-            await DoCloseTradingEvent(DateTime.Now);
+            DoCloseTradingEvent(DateTime.Now);
         }
 
         #endregion
 
         private Action _autoConnecting;
 
-        private async Task HandlerDepthMarket()
+        private void HandlerDepthMarket()
         {
             ThostFtdcDepthMarketDataField depthMarketData = new ThostFtdcDepthMarketDataField();
             while (true)
@@ -165,14 +165,15 @@ namespace QuantStudio.CTP.Data
                     }
                 }
 
-                await DoCloseTradingEvent(DateTime.Now);
+                DoCloseTradingEvent(DateTime.Now);
             }
         }
 
-        private async Task DoCloseTradingEvent(DateTime dt)
+        private void DoCloseTradingEvent(DateTime dt)
         {
             // 自动执行收盘作业
-            if (_dictQueueMarketDatas.Values.Any() && CTPClosingTradingTimeFrames.IsCTPClosingTradingTradingTime(dt))
+            if (_dictQueueMarketDatas.Values.Any() && 
+                (CTPClosingTradingTimeFrames.IsCTPClosingTradingTradingTime(dt) || dt.Second == 0))
             {
                 // 每分钟存储一次数据
                 foreach (var kvp in _dictQueueMarketDatas)
@@ -212,7 +213,7 @@ namespace QuantStudio.CTP.Data
                                 using (var writer = new StreamWriter(csvFileName))
                                 using (var csv = new CsvWriter(writer, config))
                                 {
-                                    await csv.WriteRecordsAsync(kvp.Value.ToList());
+                                    csv.WriteRecords(kvp.Value.ToList());
                                 }
                             }
                             else
@@ -236,7 +237,6 @@ namespace QuantStudio.CTP.Data
                     }
                 }
             }
-            await Task.CompletedTask;
         }
 
         private List<string> GenerateInstrumentIDs()
@@ -276,6 +276,8 @@ namespace QuantStudio.CTP.Data
         #endregion
 
         public ILogger<DataManager> Logger { get; set; }
+
+        public Thread _doDepthMarketThread;
 
         #region ctor / Initialize
 
@@ -318,11 +320,17 @@ namespace QuantStudio.CTP.Data
             _mdReceiver.OnCloseTradingEvent += _mdReceiver_OnCloseTradingEvent;
 
             _mdReceiver.Initialize(_ctpSettings, DoCTPSettings);
+
+            _doDepthMarketThread = new Thread(new ThreadStart(HandlerDepthMarket));
+            _doDepthMarketThread.IsBackground = true;
+            _doDepthMarketThread.Start();
         }
 
         #endregion
 
         #region public 
+
+        public bool IsConnected { get { return _mdReceiver.IsConnected; } }
 
         public async Task RunAsync()
         {
@@ -330,19 +338,15 @@ namespace QuantStudio.CTP.Data
             {
                 await _mdReceiver.Connect();
             }
-
-            //  await Task.Run(() => _autoConnecting.Invoke());
-
-            await HandlerDepthMarket();
         }
 
         /// <summary>
         /// 收盘作业
         /// </summary>
         /// <returns></returns>
-        public async Task CloseTradingAsync()
+        public void CloseTradingAsync()
         {
-            await DoCloseTradingEvent(DateTime.Now);
+            DoCloseTradingEvent(DateTime.Now);
         }
 
         #endregion

@@ -22,6 +22,18 @@ namespace QuantStudio.Shell
         public SplashWindow()
         {
             InitializeComponent();
+            Initialize();
+        }
+
+        public void Initialize()
+        {
+            txtDesctiption.Content = "ShowMe"; // "QuantStudio是一个实时算法交易平台,全栈采用了微软最新的.NET Core技术， 轻量级架构,支持行情，数据，交易，回测。";
+        }
+
+        private async void SplashView_Loaded(object sender, RoutedEventArgs e)
+        {
+            await Task.Run( () => App.Current.ShellEngine.RunDataManagerAsync() );
+            await Task.CompletedTask;
         }
     }
 }
